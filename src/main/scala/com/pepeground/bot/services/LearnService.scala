@@ -12,13 +12,12 @@ class LearnService(words: List[String], chatId: Long) {
   def learnPair(): Unit = DB localTx { implicit session =>
     WordRepository.learWords(words)
     var newWords: ListBuffer[Option[String]] = ListBuffer(None)
+    val preloadedWords: Map[String, WordEntity] = WordRepository.getByWords(words).map(we => we.word -> we).toMap
 
     words.foreach { w =>
       newWords += Option(w)
 
-      if (Config.bot.punctuation.endSentence.contains(w.takeRight(1))) {
-        newWords += None
-      }
+      if (Config.bot.punctuation.endSentence.contains(w.takeRight(1))) newWords += None
     }
 
     newWords.last match {
@@ -33,7 +32,7 @@ class LearnService(words: List[String], chatId: Long) {
 
       trigram.zipWithIndex.foreach { case (w,i) =>
         w match {
-          case Some(s: String) => WordRepository.getByWord(s) match {
+          case Some(s: String) => preloadedWords.get(s) match {
             case Some(we: WordEntity) => trigramMap.put(i, we.id)
             case None =>
           }

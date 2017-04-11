@@ -51,8 +51,7 @@ class MessageHandler(message: Message) {
       case _ =>
     }
 
-    val result = textCopy.split(" ").map(_.toLowerCase).toList
-    print(result)
+    val result = textCopy.split(" ").filter(_ != " ").map(_.toLowerCase).toList
     result
   }
 

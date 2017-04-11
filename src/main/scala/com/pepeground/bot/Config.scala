@@ -1,6 +1,7 @@
 package com.pepeground.bot
 
 import com.typesafe.config.ConfigFactory
+
 import scala.collection.JavaConverters._
 
 object Config {

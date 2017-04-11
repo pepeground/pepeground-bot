@@ -3,6 +3,7 @@ package com.pepeground.bot.repositories
 import com.pepeground.bot.entities.WordEntity
 import scalikejdbc._
 import com.pepeground.bot.support.PostgreSQLSyntaxSupport._
+import scala.util.control.Breaks._
 
 object WordRepository {
   private val w = WordEntity.syntax("w")
@@ -26,12 +27,18 @@ object WordRepository {
   }
 
   def learWords(words: List[String])(implicit session: DBSession): Unit = {
+    val existedWords: List[String] = getByWords(words).map(_.word)
+
     words.foreach { word =>
-      withSQL {
-        insert.into(WordEntity).namedValues(
-          WordEntity.column.word -> word
-        ).onConflictDoNothing()
-      }.update().apply()
+      breakable {
+        if (existedWords.contains(word)) break
+
+        withSQL {
+          insert.into(WordEntity).namedValues(
+            WordEntity.column.word -> word
+          ).onConflictDoNothing()
+        }.update().apply()
+      }
     }
   }
 }

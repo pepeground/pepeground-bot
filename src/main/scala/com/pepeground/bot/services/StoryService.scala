@@ -43,7 +43,6 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
 
     breakable {
       while(true) {
-        println(pair)
         if ( safetyCounter < 0 ) break
         if ( pair.isEmpty ) break
 
@@ -88,10 +87,20 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
       }
     }
 
-    currentSentences += "%s%s".format(
-      sentence.mkString(" ").stripLineEnd,
-      Config.bot.punctuation.endSentence(Random.nextInt(endSentenceLength))
-    )
+    if (sentence.nonEmpty) {
+      currentSentences += setSentenceEnd(sentence.mkString(" ").stripLineEnd)
+    }
+  }
+
+  private def setSentenceEnd(s: String): String = {
+    if(Config.bot.punctuation.endSentence.contains(s.takeRight(1))) {
+      s
+    } else {
+      "%s%s".format(
+        s,
+        Config.bot.punctuation.endSentence(Random.nextInt(endSentenceLength))
+      )
+    }
   }
 
   lazy val endSentenceLength: Int = Config.bot.punctuation.endSentence.length
