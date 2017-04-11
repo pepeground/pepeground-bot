@@ -1,0 +1,14 @@
+# Connection Pool settings
+db.default.poolInitialSize=5
+db.default.poolMaxSize=7
+db.default.poolConnectionTimeoutMillis=1000
+db.default.poolValidationQuery="select 1 as one"
+db.default.poolFactoryName="commons-dbcp2"
+
+# PostgreSQL example
+db.default.driver="org.postgresql.Driver"
+db.default.url="jdbc:postgresql://localhost:5432/shizoid"
+
+
+bot.punctuation.endSentence = [".", "!", "?"]
+bot.telegramToken = ""
