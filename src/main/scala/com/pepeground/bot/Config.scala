@@ -11,6 +11,12 @@ object Config {
     lazy val botConfig = config.getConfig("bot")
     lazy val telegramToken: String = botConfig.getString("telegramToken")
 
+    object redis {
+      lazy val redisConfig = botConfig.getConfig("redis")
+      lazy val host = redisConfig.getString("host")
+      lazy val port = redisConfig.getInt("port")
+    }
+
     object punctuation {
       lazy val punctuationConfig = botConfig.getConfig("punctuation")
 

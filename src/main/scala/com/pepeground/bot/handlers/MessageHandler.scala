@@ -1,9 +1,11 @@
 package com.pepeground.bot.handlers
 
 import com.pepeground.bot.entities.ChatEntity
-import com.pepeground.bot.repositories.ChatRepository
+import com.pepeground.bot.repositories.{ChatRepository, ContextRepository}
 import com.pepeground.bot.services.{LearnService, StoryService}
 import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
+
+import scala.util.Random
 
 object MessageHandler {
   def apply(message: Message): MessageHandler = {
@@ -26,6 +28,7 @@ class MessageHandler(message: Message) {
     }
 
     learnService.learnPair()
+    ContextRepository.updateContext(chatContext, words)
     processMessage()
   }
 
@@ -90,7 +93,8 @@ class MessageHandler(message: Message) {
   }
 
   lazy val learnService: LearnService = new LearnService(words, chat.id)
-  lazy val storyService: StoryService = new StoryService(words, List(), chat.id)
+  lazy val storyService: StoryService = new StoryService(words, context, chat.id)
+  lazy val context: List[String] = Random.shuffle(ContextRepository.getContext(chatContext, 10)).take(3)
 
   lazy val words: List[String] = getWords()
 

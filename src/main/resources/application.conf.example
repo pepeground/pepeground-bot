@@ -9,6 +9,8 @@ db.default.poolFactoryName="commons-dbcp2"
 db.default.driver="org.postgresql.Driver"
 db.default.url="jdbc:postgresql://localhost:5432/shizoid"
 
+bot.redis.host = "127.0.0.1"
+bot.redis.port = 6379
 
 bot.punctuation.endSentence = [".", "!", "?"]
 bot.telegramToken = ""

@@ -14,6 +14,8 @@ lazy val root = (project in file(".")).
       "org.scalikejdbc" %% "scalikejdbc-config" % "2.5.1",
       "org.postgresql" % "postgresql" % "9.4.1212",
       "org.apache.commons" % "commons-dbcp2" % "2.1.1",
-      "joda-time" % "joda-time" % "2.9.9"
+      "joda-time" % "joda-time" % "2.9.9",
+      "net.debasishg" %% "redisclient" % "3.4",
+      "com.typesafe.akka" %% "akka-actor" % "2.4.17"
     )
   )
