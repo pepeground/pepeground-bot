@@ -15,7 +15,7 @@ object ContextRepository {
 
       client.pipeline { p =>
         p.del(path)
-        aggregatedWords.foreach { w => p.lpush(path, w) }
+        p.lpush(path, aggregatedWords.headOption.getOrElse(""), aggregatedWords.tail: _*)
       }
     }
   }
