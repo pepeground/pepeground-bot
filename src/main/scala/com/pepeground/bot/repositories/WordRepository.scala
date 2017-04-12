@@ -4,8 +4,11 @@ import com.pepeground.bot.entities.WordEntity
 import scalikejdbc._
 import com.pepeground.bot.support.PostgreSQLSyntaxSupport._
 import scala.util.control.Breaks._
+import com.typesafe.scalalogging._
+import org.slf4j.LoggerFactory
 
 object WordRepository {
+  private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private val w = WordEntity.syntax("w")
 
   def getByWords(words: List[String])(implicit session: DBSession): List[WordEntity] = {
@@ -32,6 +35,7 @@ object WordRepository {
     words.foreach { word =>
       breakable {
         if (existedWords.contains(word)) break
+        logger.info("Learn new word: %s".format(word))
 
         withSQL {
           insert.into(WordEntity).namedValues(

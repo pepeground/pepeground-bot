@@ -7,8 +7,11 @@ import org.joda.time.DateTime
 import scalikejdbc._
 import sqls.{ distinct, count }
 import com.pepeground.bot.support.PostgreSQLSyntaxSupport._
+import com.typesafe.scalalogging._
+import org.slf4j.LoggerFactory
 
 object PairRepository {
+  private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private val p = PairEntity.syntax("p")
   private val r = ReplyEntity.syntax("r")
 
@@ -42,6 +45,8 @@ object PairRepository {
   }
 
   def createPairBy(chatId: Long, firstId: Option[Long], secondId: Option[Long])(implicit session: DBSession): PairEntity = {
+    logger.info("Learn new pair for chat id %s".format(chatId))
+
     withSQL {
       insert.into(PairEntity).namedValues(
         PairEntity.column.chatId -> chatId,

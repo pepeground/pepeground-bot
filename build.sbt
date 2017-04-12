@@ -16,6 +16,7 @@ lazy val root = (project in file(".")).
       "org.apache.commons" % "commons-dbcp2" % "2.1.1",
       "joda-time" % "joda-time" % "2.9.9",
       "net.debasishg" %% "redisclient" % "3.4",
-      "com.typesafe.akka" %% "akka-actor" % "2.4.17"
+      "com.typesafe.akka" %% "akka-actor" % "2.4.17",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
     )
   )
