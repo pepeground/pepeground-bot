@@ -5,6 +5,7 @@ import java.util.NoSuchElementException
 import com.pepeground.bot.entities.{PairEntity, ReplyEntity}
 import org.joda.time.DateTime
 import scalikejdbc._
+import sqls.{ distinct, count }
 import com.pepeground.bot.support.PostgreSQLSyntaxSupport._
 
 object PairRepository {
@@ -54,6 +55,12 @@ object PairRepository {
       case Some(pair: PairEntity) => pair
       case None => throw new NoSuchElementException("No such pair")
     }
+  }
+
+  def getPairsCount(chatId: Long)(implicit session: DBSession): Int = {
+    withSQL {
+      select(count(distinct(p.id))).from(PairEntity as p).where.eq(p.chatId, chatId)
+    }.map(_.int(1)).single.apply().get
   }
 
   def getPairOrCreateBy(chatId: Long, firstId: Option[Long], secondId: Option[Long])(implicit session: DBSession) = {

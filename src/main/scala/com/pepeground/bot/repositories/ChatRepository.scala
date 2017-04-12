@@ -17,6 +17,15 @@ object ChatRepository {
     }
   }
 
+  def updateRandomChance(id: Long, randomChance: Int): Unit = DB localTx { implicit session =>
+    withSQL {
+      update(ChatEntity).set(
+        ChatEntity.column.randomChance -> randomChance,
+        ChatEntity.column.updatedAt -> new DateTime()
+      ).where.eq(ChatEntity.column.id, id)
+    }.update().apply()
+  }
+
   def updateChat(id: Long, name: Option[String], telegramId: Long): Unit = DB localTx { implicit session =>
     withSQL {
       update(ChatEntity).set(
@@ -30,11 +39,11 @@ object ChatRepository {
   def create(telegramId: Long, name: String, chatType: String)(implicit  session: DBSession): ChatEntity = {
     withSQL {
       insert.into(ChatEntity).namedValues(
-        c.telegramId -> telegramId,
-        c.name -> Option(name),
-        c.chatType -> ChatType(chatType.toLowerCase),
-        c.updatedAt -> new DateTime(),
-        c.createdAt -> new DateTime()
+        ChatEntity.column.telegramId -> telegramId,
+        ChatEntity.column.name -> Option(name),
+        ChatEntity.column.chatType -> ChatType(chatType.toLowerCase),
+        ChatEntity.column.updatedAt -> new DateTime(),
+        ChatEntity.column.createdAt -> new DateTime()
       )
     }.update().apply()
 

@@ -10,6 +10,8 @@ object Config {
   object bot {
     lazy val botConfig = config.getConfig("bot")
     lazy val telegramToken: String = botConfig.getString("telegramToken")
+    lazy val anchors: List[String] = botConfig.getStringList("anchors").asScala.toList
+    lazy val name: String = botConfig.getString("name")
 
     object redis {
       lazy val redisConfig = botConfig.getConfig("redis")

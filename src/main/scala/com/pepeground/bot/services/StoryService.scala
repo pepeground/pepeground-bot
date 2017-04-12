@@ -17,7 +17,9 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
     DB readOnly { implicit session =>
       currentWordIds = WordRepository.getByWords((words ++ context).distinct).map(_.id).to[ListBuffer]
 
-      for ( a <- 0 to sentences.getOrElse(Random.nextInt(3)) ) {
+      println(sentences)
+
+      for ( a <- 0 to sentences.getOrElse(Random.nextInt(2) + 1) ) {
         generateSentence()
       }
     }
@@ -77,7 +79,6 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
                 case None =>
               }
               case None =>
-                break
             }
           case None =>
             break
