@@ -17,8 +17,6 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
     DB readOnly { implicit session =>
       currentWordIds = WordRepository.getByWords((words ++ context).distinct).map(_.id).to[ListBuffer]
 
-      println(sentences)
-
       for ( a <- 0 to sentences.getOrElse(Random.nextInt(2) + 1) ) {
         generateSentence()
       }

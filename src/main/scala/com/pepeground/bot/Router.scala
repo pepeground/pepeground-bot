@@ -8,9 +8,13 @@ import info.mukel.telegrambot4s.models._
 
 import scala.util.Try
 
+import com.typesafe.scalalogging._
+import org.slf4j.LoggerFactory
+
 object Router extends TelegramBot with Polling with Commands {
   def token = Config.bot.telegramToken
 
+  override val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private val botName = Config.bot.name
 
   private val getStatsPattern = """\/get_stats(@%s|)""".format(botName).r
@@ -22,11 +26,11 @@ object Router extends TelegramBot with Polling with Commands {
   override def onMessage(msg: Message): Unit = {
     for (text <- msg.text) cleanCmd(text) match {
       case getStatsPattern(_) => GetStatsHandler(msg).call() match {
-        case Some(s: String) => request(SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case coolStoryPattern(_) => CoolStoryHandler(msg).call() match {
-        case Some(s: String) => request(SendMessage(msg.sender, s))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s))
         case None =>
       }
       case setGabPattern(_) =>
@@ -41,17 +45,17 @@ object Router extends TelegramBot with Polling with Commands {
         level match {
           case Some(l: Int) =>
             SetGabHandler(msg).call(l) match {
-              case Some(s: String) => request(SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+              case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
               case None =>
             }
-          case None => request(SendMessage(msg.sender, "Wrong percent", replyToMessageId = msg.messageId))
+          case None => makeResponse(text, SendMessage(msg.sender, "Wrong percent", replyToMessageId = msg.messageId))
         }
       case getGabPattern(_) => GetGabHandler(msg).call() match {
-        case Some(s: String) => request(SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case pingPattern(_) => PingHandler(msg).call() match {
-        case Some(s: String) => request(SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case s =>
@@ -64,10 +68,15 @@ object Router extends TelegramBot with Polling with Commands {
   private def handleMessage(msg: Message): Unit = {
     MessageHandler(msg).call() match {
       case Some(res: Either[Option[String], Option[String]]) => res match {
-        case Left(s: Option[String]) => if(s.nonEmpty) request(SendMessage(msg.sender, s.get, replyToMessageId = msg.messageId))
-        case Right(s: Option[String]) => if(s.nonEmpty) request(SendMessage(msg.sender, s.get))
+        case Left(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.sender, s.get, replyToMessageId = msg.messageId))
+        case Right(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.sender, s.get))
       }
       case _ =>
     }
+  }
+
+  private def makeResponse(context: String, msg: SendMessage): Unit = {
+    logger.info("Response for %s, with text: %s".format(context, msg.text))
+    request(msg)
   }
 }

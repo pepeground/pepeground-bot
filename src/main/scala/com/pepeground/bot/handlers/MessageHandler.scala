@@ -22,7 +22,7 @@ class MessageHandler(message: Message) extends GenericHandler(message) {
 
     if (!hasText || isEdition) return None
 
-    logger.info("Message received: %s from %s(%s)".format(message.text.getOrElse(""), chatName, migrationId))
+    logger.info("Message received: %s from %s (%s)".format(message.text.getOrElse(""), chatName, migrationId))
 
     learnService.learnPair()
     ContextRepository.updateContext(chatContext, words)

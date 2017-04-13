@@ -55,7 +55,7 @@ object ChatRepository {
 
   def getByTelegramId(telegramId: Long)(implicit session: DBSession): Option[ChatEntity] = {
     withSQL {
-      select.from(ChatEntity as c).where.eq(c.telegramId, telegramId)
+      select.from(ChatEntity as c).where.eq(c.telegramId, telegramId).limit(1)
     }.map(rs => ChatEntity(c)(rs)).single.apply()
   }
 }
