@@ -7,7 +7,7 @@ Scala implementation of [shizoid](https://github.com/top4ek/shizoid)
 * SBT
 * JDK 1.8
 * PostgreSQL 9.2 +
-* Redis Server 3.3.0 +
+* Redis Server 3.2.0 +
 
 ## Configuration
 
