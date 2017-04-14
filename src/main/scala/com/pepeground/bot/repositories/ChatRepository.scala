@@ -6,6 +6,7 @@ import com.pepeground.bot.enums.{ChatType}
 import com.pepeground.bot.entities.ChatEntity
 import scalikejdbc._
 import org.joda.time._
+import com.pepeground.bot.support.PostgreSQLSyntaxSupport._
 
 object ChatRepository {
   private val c = ChatEntity.syntax("c")
@@ -44,7 +45,7 @@ object ChatRepository {
         ChatEntity.column.chatType -> ChatType(chatType.toLowerCase),
         ChatEntity.column.updatedAt -> new DateTime(),
         ChatEntity.column.createdAt -> new DateTime()
-      )
+      ).onConflictDoNothing()
     }.update().apply()
 
     getByTelegramId(telegramId) match {
