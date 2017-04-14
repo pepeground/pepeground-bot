@@ -1,26 +1,42 @@
-lazy val root = (project in file(".")).
+lazy val commonSettings = Seq(
+  organization := "com.pepeground",
+  scalaVersion := "2.12.1",
+  version := "0.1",
+  resolvers ++= Seq(
+    Resolver.sonatypeRepo("snapshots"),
+    "Flyway" at "https://flywaydb.org/repo"
+  ),
+  libraryDependencies ++= Seq(
+    "ch.qos.logback" % "logback-classic" % "1.2.2",
+    "com.typesafe" % "config" % "1.3.1",
+    "org.scalikejdbc" %% "scalikejdbc"  % "2.5.1",
+    "org.scalikejdbc" %% "scalikejdbc-config" % "2.5.1",
+    "org.postgresql" % "postgresql" % "9.4.1212",
+    "org.apache.commons" % "commons-dbcp2" % "2.1.1",
+    "joda-time" % "joda-time" % "2.9.9",
+    "net.debasishg" %% "redisclient" % "3.4",
+    "com.typesafe.akka" %% "akka-actor" % "2.4.17",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+    "org.flywaydb" % "flyway-core" % "4.1.2"
+  )
+)
+
+lazy val core = (project in file("core")).
   settings(
+    commonSettings,
+    name := "core"
+  )
+
+lazy val bot = (project in file("bot")).
+  dependsOn(core).
+  settings(
+    commonSettings,
     name := "bot",
-    organization := "com.pepeground",
-    scalaVersion := "2.12.1",
-    version := "0.1",
     mainClass in (Compile,run) := Some("com.pepeground.bot.Main"),
-    resolvers ++= Seq(
-      Resolver.sonatypeRepo("snapshots"),
-      "Flyway" at "https://flywaydb.org/repo"
-    ),
     libraryDependencies ++= Seq(
-      "info.mukel" %% "telegrambot4s" % "2.1.0-SNAPSHOT",
-      "ch.qos.logback" % "logback-classic" % "1.2.2",
-      "com.typesafe" % "config" % "1.3.1",
-      "org.scalikejdbc" %% "scalikejdbc"  % "2.5.1",
-      "org.scalikejdbc" %% "scalikejdbc-config" % "2.5.1",
-      "org.postgresql" % "postgresql" % "9.4.1212",
-      "org.apache.commons" % "commons-dbcp2" % "2.1.1",
-      "joda-time" % "joda-time" % "2.9.9",
-      "net.debasishg" %% "redisclient" % "3.4",
-      "com.typesafe.akka" %% "akka-actor" % "2.4.17",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
-      "org.flywaydb" % "flyway-core" % "4.1.2"
+      "info.mukel" %% "telegrambot4s" % "2.1.0-SNAPSHOT"
     )
   )
+
+lazy val root = (project in file("."))
+  .aggregate(bot, core)

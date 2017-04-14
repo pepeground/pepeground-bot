@@ -1,4 +1,7 @@
 .idea
-project/target
 target/
-src/main/resources/application.conf
+bot/src/main/resources/application.conf
+bot/target
+core/target
+project/project
+project/target
