@@ -61,18 +61,14 @@ class GenericHandler(message: Message) {
 
     message.entities match {
       case Some(s: Seq[MessageEntity]) => s.foreach { entity =>
-        entity.`type` match {
-          case "hashtag" =>
-          case "bot_command" =>
-          case _ => textCopy = textCopy.replace(textCopy.substring(entity.offset, entity.length), " " * entity.length)
-        }
+        textCopy = textCopy
+          .replace(textCopy.substring(entity.offset, entity.offset + entity.length), " " * entity.length)
       }
       case _ =>
     }
-
     textCopy
       .split("\\s+")
-      .filterNot(s => s == " " || s.isEmpty || s.startsWith("#") || s.startsWith("/"))
+      .filterNot(s => s == " " || s.isEmpty)
       .map(_.toLowerCase)
       .toList
   }

@@ -5,7 +5,10 @@ lazy val root = (project in file(".")).
     scalaVersion := "2.12.1",
     version := "0.1",
     mainClass in (Compile,run) := Some("com.pepeground.bot.Main"),
-    resolvers += Resolver.sonatypeRepo("snapshots"),
+    resolvers ++= Seq(
+      Resolver.sonatypeRepo("snapshots"),
+      "Flyway" at "https://flywaydb.org/repo"
+    ),
     libraryDependencies ++= Seq(
       "info.mukel" %% "telegrambot4s" % "2.1.0-SNAPSHOT",
       "ch.qos.logback" % "logback-classic" % "1.2.2",
@@ -17,6 +20,7 @@ lazy val root = (project in file(".")).
       "joda-time" % "joda-time" % "2.9.9",
       "net.debasishg" %% "redisclient" % "3.4",
       "com.typesafe.akka" %% "akka-actor" % "2.4.17",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+      "org.flywaydb" % "flyway-core" % "4.1.2"
     )
   )

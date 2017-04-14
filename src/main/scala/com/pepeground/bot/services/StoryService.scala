@@ -2,7 +2,7 @@ package com.pepeground.bot.services
 
 import com.pepeground.bot.Config
 import com.pepeground.bot.entities.{PairEntity, ReplyEntity, WordEntity}
-import com.pepeground.bot.repositories.{PairRepository, WordRepository}
+import com.pepeground.bot.repositories.{PairRepository, ReplyRepository, WordRepository}
 import scalikejdbc._
 
 import scala.collection.mutable.ListBuffer
@@ -39,7 +39,7 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
 
     var pair: Option[PairEntity] = None
 
-    pair = PairRepository.getPairWithReplies(chatId, firstWordId, secondWordId.toList)
+    pair = Random.shuffle(PairRepository.getPairWithReplies(chatId, firstWordId, secondWordId)).headOption
 
     breakable {
       while(true) {
@@ -50,7 +50,7 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
 
         pair match {
           case Some(pe: PairEntity) =>
-            val reply = Random.shuffle(pe.replies.sortBy(_.count).reverse.toList).headOption
+            val reply = Random.shuffle(ReplyRepository.repliesForPair(pe.id)).headOption
 
             firstWordId = pe.secondId
 
@@ -82,7 +82,7 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
             break
         }
 
-        pair = PairRepository.getPairWithReplies(chatId, firstWordId, secondWordId)
+        pair = Random.shuffle(PairRepository.getPairWithReplies(chatId, firstWordId, secondWordId)).headOption
       }
     }
 

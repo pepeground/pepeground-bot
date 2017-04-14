@@ -15,25 +15,19 @@ object Router extends TelegramBot with Polling with Commands {
   def token = Config.bot.telegramToken
 
   override val logger = Logger(LoggerFactory.getLogger(this.getClass))
-  private val botName = Config.bot.name
-
-  private val getStatsPattern = """\/get_stats(@%s|)""".format(botName).r
-  private val coolStoryPattern = """\/cool_story(@%s|)""".format(botName).r
-  private val setGabPattern = """\/set_gab(@%s|)""".format(botName).r
-  private val getGabPattern = """\/get_gab(@%s|)""".format(botName).r
-  private val pingPattern = """\/ping(@%s|)""".format(botName).r
+  private val botName = Config.bot.name.toLowerCase
 
   override def onMessage(msg: Message): Unit = {
     for (text <- msg.text) cleanCmd(text) match {
-      case getStatsPattern(_) => GetStatsHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+      case c if expectedCmd(c, "/get_stats") => GetStatsHandler(msg).call() match {
+        case Some(s: String) =>  makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
-      case coolStoryPattern(_) => CoolStoryHandler(msg).call() match {
+      case c if expectedCmd(c, "/cool_story") => CoolStoryHandler(msg).call() match {
         case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s))
         case None =>
       }
-      case setGabPattern(_) =>
+      case c if expectedCmd(c, "/set_gab") =>
         val level: Option[Int] = text.split(" ").take(2) match {
           case Array(_, randomLevel) => Try(randomLevel.toInt).toOption match {
             case Some(l: Int) => Some(l)
@@ -50,11 +44,11 @@ object Router extends TelegramBot with Polling with Commands {
             }
           case None => makeResponse(text, SendMessage(msg.sender, "Wrong percent", replyToMessageId = msg.messageId))
         }
-      case getGabPattern(_) => GetGabHandler(msg).call() match {
+      case c if expectedCmd(c, "/get_gab") => GetGabHandler(msg).call() match {
         case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
-      case pingPattern(_) => PingHandler(msg).call() match {
+      case c if expectedCmd(c, "/ping") => PingHandler(msg).call() match {
         case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
@@ -64,6 +58,14 @@ object Router extends TelegramBot with Polling with Commands {
   }
 
   private def cleanCmd(cmd: String): String = cmd.takeWhile(s => s != ' ' ).toLowerCase
+
+  private def expectedCmd(cmd: String, expected: String): Boolean = {
+    cmd.split("@") match {
+      case Array(c: String, name: String) => c == expected && name.toLowerCase == botName
+      case Array(c: String) => c == expected
+      case _ => false
+    }
+  }
 
   private def handleMessage(msg: Message): Unit = {
     MessageHandler(msg).call() match {

@@ -9,6 +9,16 @@ import com.pepeground.bot.support.PostgreSQLSyntaxSupport._
 object ReplyRepository {
   private val r = ReplyEntity.syntax("r")
 
+  def repliesForPair(pairId: Long)(implicit session: DBSession): List[ReplyEntity] = {
+    withSQL {
+      select
+        .from(ReplyEntity as r)
+        .where.eq(r.pairId, pairId)
+        .orderBy(r.count.desc)
+        .limit(3)
+    }.map(rs => ReplyEntity(r)(rs)).list().apply()
+  }
+
   def getReplyOrCreateBy(pairId: Long, wordId: Option[Long])(implicit session: DBSession): ReplyEntity = {
     getReplyBy(pairId, wordId) match {
       case Some(reply: ReplyEntity) => reply

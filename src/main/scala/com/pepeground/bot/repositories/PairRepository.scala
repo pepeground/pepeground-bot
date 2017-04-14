@@ -15,7 +15,7 @@ object PairRepository {
   private val p = PairEntity.syntax("p")
   private val r = ReplyEntity.syntax("r")
 
-  def getPairWithReplies(chatId: Long, firstIds: Option[Long], secondIds: List[Option[Long]])(implicit session: DBSession): Option[PairEntity] = {
+  def getPairWithReplies(chatId: Long, firstIds: Option[Long], secondIds: List[Option[Long]])(implicit session: DBSession): List[PairEntity] = {
     var timeOffset = new DateTime
 
     timeOffset = timeOffset.minusMinutes(10)
@@ -23,19 +23,13 @@ object PairRepository {
     withSQL {
       select
         .from(PairEntity as p)
-        .leftJoin(ReplyEntity as r)
-        .on(p.id, r.pairId)
-        .where.lt(p.createdAt, timeOffset)
+        .where.exists(select.from(ReplyEntity as r).where.eq(r.pairId, p.id))
+        .and.lt(p.createdAt, timeOffset)
         .and.eq(p.chatId, chatId)
         .and.eq(p.firstId, firstIds)
         .and.in(p.secondId, secondIds)
-        .orderBy(sqls"random()")
-        .limit(1)
-    }.one(PairEntity(p))
-      .toMany(ReplyEntity.opt(r))
-      .map { (pair, replies) => pair.copy(replies = replies) }
-      .single
-      .apply()
+        .limit(3)
+    }.map(rs => PairEntity(p)(rs)).list().apply()
   }
 
   def getPairBy(chatId: Long, firstId: Option[Long], secondId: Option[Long])(implicit session: DBSession): Option[PairEntity] = {
