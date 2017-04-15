@@ -5,8 +5,8 @@ scala:
 jdk:
   - oraclejdk8
 
-services:
-  - postgresql
+addons:
+  postgresql: "9.6"
 
 before_script:
   - cp core/src/test/resources/application.conf.example core/src/test/resources/application.conf
