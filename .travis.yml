@@ -17,8 +17,9 @@ addons:
   postgresql: "9.6"
 
 matrix:
-  - env: SCRIPT=ci/bot-assembly.sh
-  - env: SCRIPT=ci/core-testing.sh
+  include:
+    - env: SCRIPT=ci/bot-assembly.sh
+    - env: SCRIPT=ci/core-testing.sh
 
 script:
   - sh $SCRIPT
