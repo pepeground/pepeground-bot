@@ -6,4 +6,4 @@ jdk:
   - oraclejdk8
 
 script:
-  - sbt assembly
+  - sbt bot/assembly
