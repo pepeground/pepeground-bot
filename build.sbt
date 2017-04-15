@@ -6,6 +6,7 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("snapshots"),
     "Flyway" at "https://flywaydb.org/repo"
   ),
+  parallelExecution in Test := false,
   libraryDependencies ++= Seq(
     "ch.qos.logback" % "logback-classic" % "1.2.2",
     "com.typesafe" % "config" % "1.3.1",
