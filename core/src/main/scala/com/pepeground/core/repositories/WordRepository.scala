@@ -29,6 +29,14 @@ object WordRepository {
     }.map(rs => WordEntity(w)(rs)).single.apply()
   }
 
+  def create(word: String)(implicit session: DBSession): Option[Long] = {
+    withSQL {
+      insert.into(WordEntity).namedValues(
+        WordEntity.column.word -> word
+      ).onConflictDoNothing().returning(WordEntity.column.id)
+    }.map(rs => rs.long("id")).single().apply()
+  }
+
   def learWords(words: List[String])(implicit session: DBSession): Unit = {
     val existedWords: List[String] = getByWords(words).map(_.word)
 
@@ -36,12 +44,7 @@ object WordRepository {
       breakable {
         if (existedWords.contains(word)) break
         logger.info("Learn new word: %s".format(word))
-
-        withSQL {
-          insert.into(WordEntity).namedValues(
-            WordEntity.column.word -> word
-          ).onConflictDoNothing()
-        }.update().apply()
+        create(word)
       }
     }
   }
