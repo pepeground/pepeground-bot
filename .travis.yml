@@ -5,5 +5,12 @@ scala:
 jdk:
   - oraclejdk8
 
+services:
+  - postgresql
+
+before_script:
+  - cp core/src/test/resources/application.conf.example core/src/test/resources/application.conf
+  - psql -c 'create database pepeground_test;' -U postgres
+
 script:
-  - sbt bot/assembly
+  - sbt core/test

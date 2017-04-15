@@ -11,6 +11,18 @@ import com.pepeground.core.support.PostgreSQLSyntaxSupport._
 object ChatRepository {
   private val c = ChatEntity.syntax("c")
 
+  def getList(limit: Int = 20, offset: Int = 0)(implicit session: DBSession): List[ChatEntity] = {
+    withSQL {
+      select.from(ChatEntity as c).limit(limit).offset(offset)
+    }.map(rs => ChatEntity(c)(rs)).list().apply()
+  }
+
+  def getChatById(id: Long)(implicit session: DBSession): Option[ChatEntity] = {
+    withSQL {
+      select.from(ChatEntity as c).where.eq(c.id, id).limit(1)
+    }.map(rs => ChatEntity(c)(rs)).single.apply()
+  }
+
   def getOrCreateBy(telegramId: Long, name: String, chatType: String): ChatEntity = DB localTx { implicit session =>
     getByTelegramId(telegramId) match {
       case Some(chat: ChatEntity) => chat
