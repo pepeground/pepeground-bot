@@ -17,10 +17,8 @@ addons:
   postgresql: "9.6"
 
 matrix:
-  - before_script:
-      - cp core/src/test/resources/application.conf.example core/src/test/resources/application.conf
-      - psql -c 'create database pepeground_test;' -U postgres
-    script:
-      - sbt core/test
-  - script:
-      - sbt bot/assembly
+  - env: SCRIPT=ci/bot-assembly.sh
+  - env: SCRIPT=ci/core-testing.sh
+
+script:
+  - sh $SCRIPT
