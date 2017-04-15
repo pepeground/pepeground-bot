@@ -14,6 +14,8 @@ redis.port = 6379
 
 punctuation.endSentence = [".", "!", "?"]
 
+bot.repostChatIds = []
+bot.repostChatId = 0
 bot.telegramToken = ""
 bot.name = "mrazota_bot"
 bot.anchors = [

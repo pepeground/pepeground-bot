@@ -18,6 +18,12 @@ object Router extends TelegramBot with Polling with Commands {
 
   override def onMessage(msg: Message): Unit = {
     for (text <- msg.text) cleanCmd(text) match {
+      case c if expectedCmd(c, "/repost") => RepostHandler(msg).call() match {
+        case Some(s: ForwardMessage) =>
+          request(s)
+          makeResponse(text, SendMessage(msg.sender, "reposted", replyToMessageId = msg.messageId))
+        case None =>
+      }
       case c if expectedCmd(c, "/get_stats") => GetStatsHandler(msg).call() match {
         case Some(s: String) =>  makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
