@@ -6,6 +6,7 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("snapshots"),
     "Flyway" at "https://flywaydb.org/repo"
   ),
+  parallelExecution in Test := false,
   libraryDependencies ++= Seq(
     "ch.qos.logback" % "logback-classic" % "1.2.2",
     "com.typesafe" % "config" % "1.3.1",
@@ -17,7 +18,8 @@ lazy val commonSettings = Seq(
     "net.debasishg" %% "redisclient" % "3.4",
     "com.typesafe.akka" %% "akka-actor" % "2.4.17",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-    "org.flywaydb" % "flyway-core" % "4.1.2"
+    "org.flywaydb" % "flyway-core" % "4.1.2",
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
   )
 )
 
