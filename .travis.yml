@@ -1,3 +1,6 @@
+dist: trusty
+sudo: false
+
 language: scala
 scala:
   - 2.12.2
@@ -5,8 +8,13 @@ scala:
 jdk:
   - oraclejdk8
 
+cache:
+  directories:
+  - $HOME/.ivy2
+  - $HOME/.m2
+
 addons:
-  postgresql: "9.4"
+  postgresql: "9.6"
 
 before_script:
   - cp core/src/test/resources/application.conf.example core/src/test/resources/application.conf
