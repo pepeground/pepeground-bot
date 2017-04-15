@@ -16,10 +16,10 @@ cache:
 addons:
   postgresql: "9.6"
 
-matrix:
-  include:
-    - env: SCRIPT=ci/bot-assembly.sh
-    - env: SCRIPT=ci/core-testing.sh
+before_script:
+  - cp core/src/test/resources/application.conf.example core/src/test/resources/application.conf
+  - psql -c 'create database pepeground_test;' -U postgres
 
 script:
-  - sh $SCRIPT
+  - sbt core/test
+  - sbt bot/assembly
