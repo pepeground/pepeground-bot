@@ -26,3 +26,14 @@ bot.anchors = [
   "пепеграундес",
   "pepegroundes"
 ]
+
+akka {
+  quartz {
+    schedules {
+      Cleanup {
+        description = "A cron job that fires off every 30 seconds"
+        expression = "0 */1 * ? * *"
+      }
+    }
+  }
+}

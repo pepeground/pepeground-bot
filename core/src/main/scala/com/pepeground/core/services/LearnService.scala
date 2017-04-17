@@ -25,6 +25,8 @@ class LearnService(words: List[String], chatId: Long) {
       case _ =>
     }
 
+    var pairIds: ListBuffer[Long] = ListBuffer()
+
     while(newWords.nonEmpty) {
       val trigramMap: MMap[Int, Long] = MMap()
       val trigram = newWords.take(3)
@@ -41,11 +43,14 @@ class LearnService(words: List[String], chatId: Long) {
       }
 
       val pair = PairRepository.getPairOrCreateBy(chatId, trigramMap.get(0), trigramMap.get(1))
+      pairIds += pair.id
 
       ReplyRepository.getReplyBy(pair.id, trigramMap.get(2)) match {
         case Some(r: ReplyEntity) => ReplyRepository.incrementReply(r.id, r.count)
         case None => ReplyRepository.createReplyBy(pair.id, trigramMap.get(2))
       }
     }
+
+    PairRepository.touch(pairIds.toList)
   }
 }

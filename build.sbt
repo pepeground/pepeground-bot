@@ -4,6 +4,7 @@ lazy val commonSettings = Seq(
   version := "0.1",
   resolvers ++= Seq(
     Resolver.sonatypeRepo("snapshots"),
+    "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "Flyway" at "https://flywaydb.org/repo"
   ),
   parallelExecution in Test := false,
@@ -36,6 +37,7 @@ lazy val bot = (project in file("bot")).
     name := "bot",
     mainClass in (Compile,run) := Some("com.pepeground.bot.Main"),
     libraryDependencies ++= Seq(
+      "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
       "info.mukel" %% "telegrambot4s" % "2.1.0-SNAPSHOT"
     )
   )

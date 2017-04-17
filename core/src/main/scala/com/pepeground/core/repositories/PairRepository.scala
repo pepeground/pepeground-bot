@@ -46,7 +46,8 @@ object PairRepository {
         PairEntity.column.chatId -> chatId,
         PairEntity.column.firstId -> firstId,
         PairEntity.column.secondId -> secondId,
-        PairEntity.column.createdAt -> new DateTime()
+        PairEntity.column.createdAt -> new DateTime(),
+        PairEntity.column.updatedAt -> new DateTime()
       ).onConflictDoNothing()
     }.update().apply()
 
@@ -56,10 +57,41 @@ object PairRepository {
     }
   }
 
+  def touch(pairIds: List[Long])(implicit session: DBSession): Unit = {
+    withSQL {
+      update(PairEntity).set(
+        PairEntity.column.updatedAt -> new DateTime()
+      ).where.in(PairEntity.column.id, pairIds)
+    }.update().apply()
+  }
+
   def getPairsCount(chatId: Long)(implicit session: DBSession): Int = {
     withSQL {
       select(count(distinct(p.id))).from(PairEntity as p).where.eq(p.chatId, chatId)
     }.map(_.int(1)).single.apply().get
+  }
+
+  def removeOld()(implicit session: DBSession): List[Long] = {
+    val removeLt = new DateTime()
+
+    val toRemovalIds: List[Long] = withSQL {
+      select(p.id)
+        .from(PairEntity as p)
+        .where.lt(p.updatedAt, removeLt.minusMonths(3))
+        .limit(100)
+    }.map(_.long("id")).list().apply()
+
+    withSQL {
+      delete
+        .from(PairEntity)
+        .where
+        .in(
+          PairEntity.column.id,
+          toRemovalIds
+        )
+    }.update().apply()
+
+    toRemovalIds
   }
 
   def getPairOrCreateBy(chatId: Long, firstId: Option[Long], secondId: Option[Long])(implicit session: DBSession) = {

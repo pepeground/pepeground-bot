@@ -4,7 +4,7 @@ import scalikejdbc._
 import org.joda.time._
 
 case class PairEntity(id: Long, chatId: Long, firstId: Option[Long], secondId: Option[Long], createdAt: DateTime,
-                      replies: Seq[ReplyEntity] = Nil)
+                      replies: Seq[ReplyEntity] = Nil, updatedAt: DateTime)
 
 object PairEntity extends SQLSyntaxSupport[PairEntity] {
   override val tableName = "pairs"
@@ -16,6 +16,7 @@ object PairEntity extends SQLSyntaxSupport[PairEntity] {
     rs.long(c.chatId),
     rs.longOpt(c.firstId),
     rs.longOpt(c.secondId),
-    rs.jodaDateTime(c.createdAt)
+    rs.jodaDateTime(c.createdAt),
+    updatedAt = rs.jodaDateTime(c.updatedAt)
   )
 }
