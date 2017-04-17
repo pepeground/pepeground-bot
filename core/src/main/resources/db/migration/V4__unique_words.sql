@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS unique_word_word ON words USING btree(word);
