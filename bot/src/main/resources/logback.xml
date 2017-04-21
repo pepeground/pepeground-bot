@@ -5,7 +5,16 @@
             <pattern>%date %level [%thread] %logger{64} %msg%n</pattern>
         </encoder>
     </appender>
+
+    <!-- Configure the Sentry appender, overriding the logging threshold to the WARN level -->
+    <appender name="Sentry" class="com.getsentry.raven.logback.SentryAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
     <root level="info">
         <appender-ref ref="default"/>
+        <appender-ref ref="Sentry" />
     </root>
 </configuration>

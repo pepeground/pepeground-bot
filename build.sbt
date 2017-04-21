@@ -20,6 +20,7 @@ lazy val commonSettings = Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.4.17",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
     "org.flywaydb" % "flyway-core" % "4.1.2",
+    "com.getsentry.raven" % "raven-logback" % "8.0.2",
     "org.scalatest" %% "scalatest" % "3.0.1" % "test"
   )
 )
