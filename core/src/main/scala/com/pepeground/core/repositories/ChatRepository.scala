@@ -39,6 +39,15 @@ object ChatRepository {
     }.update().apply()
   }
 
+  def updateRepostChat(id: Long, repostChatUsername: String): Unit = DB localTx { implicit session =>
+    withSQL {
+      update(ChatEntity).set(
+        ChatEntity.column.repostChatUsername -> repostChatUsername,
+        ChatEntity.column.updatedAt -> new DateTime()
+      ).where.eq(ChatEntity.column.id, id)
+    }.update().apply()
+  }
+
   def updateChat(id: Long, name: Option[String], telegramId: Long): Unit = DB localTx { implicit session =>
     withSQL {
       update(ChatEntity).set(

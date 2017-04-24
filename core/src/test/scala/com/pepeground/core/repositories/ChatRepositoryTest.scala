@@ -71,6 +71,16 @@ class ChatRepositoryTest extends FunSpec with Matchers with BeforeAndAfter {
     }
   }
 
+  describe("updateRepostChat") {
+    it("updates repost chat") {
+      val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
+      DB localTx { implicit session => ChatRepository.updateRepostChat(newChat.id, "@ti_pidor") }
+      val updatedChat = DB readOnly { implicit session => ChatRepository.getChatById(newChat.id) }
+
+      assert(newChat.repostChatUsername != updatedChat.get.repostChatUsername)
+    }
+  }
+
   describe("updateChat") {
     it("updates chat") {
       val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }

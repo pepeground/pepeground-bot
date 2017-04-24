@@ -3,8 +3,8 @@ package com.pepeground.core.entities
 import scalikejdbc._
 import org.joda.time._
 
-case class ChatEntity(id: Long, name: Option[String], telegramId: Long, chatType: Int, randomChance: Int,
-                      createdAt: DateTime, updatedAt: DateTime)
+case class ChatEntity(id: Long, name: Option[String], telegramId: Long, repostChatUsername: Option[String],
+                      chatType: Int, randomChance: Int, createdAt: DateTime, updatedAt: DateTime)
 
 object ChatEntity extends SQLSyntaxSupport[ChatEntity] {
   override val tableName = "chats"
@@ -15,6 +15,7 @@ object ChatEntity extends SQLSyntaxSupport[ChatEntity] {
     rs.long(c.id),
     rs.stringOpt(c.name),
     rs.long(c.telegramId),
+    rs.stringOpt(c.repostChatUsername),
     rs.int(c.chatType),
     rs.int(c.randomChance),
     rs.jodaDateTime(c.createdAt),
