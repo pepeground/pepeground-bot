@@ -17,8 +17,7 @@ object Main extends App {
     flyway.baseline()
     flyway.migrate()
 
-    val scheduler = new Scheduler
-    scheduler.start()
+    Scheduler.setup()
 
     Router.run()
   }

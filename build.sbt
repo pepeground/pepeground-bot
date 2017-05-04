@@ -8,6 +8,7 @@ lazy val commonSettings = Seq(
     "Flyway" at "https://flywaydb.org/repo"
   ),
   parallelExecution in Test := false,
+  test in assembly := {},
   libraryDependencies ++= Seq(
     "ch.qos.logback" % "logback-classic" % "1.2.2",
     "com.typesafe" % "config" % "1.3.1",
@@ -39,6 +40,7 @@ lazy val bot = (project in file("bot")).
     mainClass in (Compile,run) := Some("com.pepeground.bot.Main"),
     libraryDependencies ++= Seq(
       "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
+      "com.danielasfregola" %% "twitter4s" % "5.1",
       "info.mukel" %% "telegrambot4s" % "2.1.0-SNAPSHOT"
     )
   )

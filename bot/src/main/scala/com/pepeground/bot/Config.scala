@@ -7,6 +7,9 @@ import scala.collection.JavaConverters._
 object Config extends CoreConfig{
   object bot {
     private lazy val botConfig = config.getConfig("bot")
+
+    lazy val twitter = botConfig.getBoolean("twitter")
+
     lazy val repostChatIds: List[Long] = botConfig.getLongList("repostChatIds").asScala.toList.map(_.toLong)
     lazy val repostChatId: Long = botConfig.getLong("repostChatId")
     lazy val telegramToken: String = botConfig.getString("telegramToken")
