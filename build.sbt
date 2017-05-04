@@ -8,6 +8,7 @@ lazy val commonSettings = Seq(
     "Flyway" at "https://flywaydb.org/repo"
   ),
   parallelExecution in Test := false,
+  test in assembly := {},
   libraryDependencies ++= Seq(
     "ch.qos.logback" % "logback-classic" % "1.2.2",
     "com.typesafe" % "config" % "1.3.1",

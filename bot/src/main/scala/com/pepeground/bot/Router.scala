@@ -17,10 +17,8 @@ object Router extends TelegramBot with Polling with Commands {
   private val botName = Config.bot.name.toLowerCase
 
   override def onMessage(msg: Message): Unit = {
-    (for {
-      res <- processMessage(msg)
-    } yield res) match {
-      case Success =>
+    Try(processMessage(msg)) match {
+      case Success(_: Unit) =>
       case Failure(e: Throwable) => throw e
     }
   }
