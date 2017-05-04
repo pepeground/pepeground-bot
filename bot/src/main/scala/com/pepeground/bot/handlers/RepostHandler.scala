@@ -38,7 +38,7 @@ class RepostHandler(message: Message) extends GenericHandler(message) {
         case Some(u: User) => u.username match {
           case None => false
           case Some(username: String) => true
-            //username.toLowerCase == Config.bot.name.toLowerCase
+            username.toLowerCase == Config.bot.name.toLowerCase
         }
       }
     }

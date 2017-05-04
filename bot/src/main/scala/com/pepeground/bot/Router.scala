@@ -17,6 +17,9 @@ object Router extends TelegramBot with Polling with Commands {
   private val botName = Config.bot.name.toLowerCase
 
   override def onMessage(msg: Message): Unit = {
+  }
+
+  private def processMessage(msg: Message): Unit = {
     for (text <- msg.text) cleanCmd(text) match {
       case c if expectedCmd(c, "/repost") => RepostHandler(msg).call() match {
         case Some(s: ForwardMessage) =>
