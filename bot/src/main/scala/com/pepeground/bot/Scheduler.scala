@@ -5,16 +5,16 @@ import com.pepeground.bot.actors.{CleanupActor, TwitterActor}
 import com.pepeground.bot.signals.Tick
 import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
 
-class Scheduler {
-  val system = Config.scheduler
-  val cleaner = system.actorOf(Props[CleanupActor])
-  val scheduler = QuartzSchedulerExtension(system)
-  val scrubber = Config.scrubber
+object Scheduler {
+  lazy val schedulerSystem = ActorSystem("scheduler")
 
-  scheduler.schedule("Cleanup", cleaner, Tick)
-  scheduler.schedule("Tweets", scrubber, Tick)
+  lazy val scrubber = schedulerSystem.actorOf(Props[TwitterActor])
+  lazy val cleaner = schedulerSystem.actorOf(Props[CleanupActor])
 
-  def start(): Boolean = {
-    scheduler.start()
+  lazy val scheduler = QuartzSchedulerExtension(schedulerSystem)
+
+  def setup(): Unit = {
+    scheduler.schedule("Cleanup", cleaner, Tick)
+    if(Config.bot.twitter) scheduler.schedule("Tweets", scrubber, Tick)
   }
 }

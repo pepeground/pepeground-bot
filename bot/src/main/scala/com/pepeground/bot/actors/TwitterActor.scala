@@ -1,9 +1,9 @@
 package com.pepeground.bot.actors
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.Actor
 import com.danielasfregola.twitter4s.TwitterRestClient
 import com.danielasfregola.twitter4s.entities.{RatedData, Tweet}
-import com.pepeground.bot.Config
+import com.pepeground.bot.Scheduler
 import com.pepeground.bot.signals.Tick
 import com.pepeground.core.entities.SubscriptionEntity
 import com.pepeground.core.repositories.SubscriptionRepository
@@ -12,19 +12,18 @@ import com.typesafe.scalalogging.Logger
 import org.slf4j.LoggerFactory
 import scalikejdbc.DB
 
-import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.{Failure, Success}
 
 class TwitterActor extends Actor {
   import context.dispatcher
-  private val client = TwitterRestClient.apply()
+  private lazy val client = TwitterRestClient.apply()
   val logger = Logger(LoggerFactory.getLogger(this.getClass))
 
   def receive = {
     case Tick =>
       DB readOnly { implicit session =>
         SubscriptionRepository.getList().foreach { s =>
-          Config.scrubber ! s
+          Scheduler.scrubber ! s
         }
       }
     case s: SubscriptionEntity => grabFromTwitter(s)

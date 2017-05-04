@@ -6,7 +6,7 @@ import info.mukel.telegrambot4s.api._
 import info.mukel.telegrambot4s.methods._
 import info.mukel.telegrambot4s.models._
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
 
@@ -17,6 +17,12 @@ object Router extends TelegramBot with Polling with Commands {
   private val botName = Config.bot.name.toLowerCase
 
   override def onMessage(msg: Message): Unit = {
+    (for {
+      res <- processMessage(msg)
+    } yield res) match {
+      case Success =>
+      case Failure(e: Throwable) =>
+    }
   }
 
   private def processMessage(msg: Message): Unit = {
