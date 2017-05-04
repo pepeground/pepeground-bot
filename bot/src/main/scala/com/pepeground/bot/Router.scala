@@ -21,7 +21,7 @@ object Router extends TelegramBot with Polling with Commands {
       res <- processMessage(msg)
     } yield res) match {
       case Success =>
-      case Failure(e: Throwable) =>
+      case Failure(e: Throwable) => throw e
     }
   }
 
