@@ -17,7 +17,7 @@ class RepostHandler(message: Message) extends GenericHandler(message) {
     if(canRepost) {
       Some(
         ForwardMessage(
-          Left(Config.bot.repostChatId),
+          Right(chat.repostChatUsername.get),
           Left(message.chat.id),
           None,
           message.replyToMessage.get.messageId
@@ -29,8 +29,6 @@ class RepostHandler(message: Message) extends GenericHandler(message) {
   }
 
   def canRepost: Boolean = {
-    if(!Config.bot.repostChatIds.contains(message.chat.id)) return false
-
     message.replyToMessage match {
       case None => false
       case Some(mo: Message) => mo.from match {
@@ -38,7 +36,6 @@ class RepostHandler(message: Message) extends GenericHandler(message) {
         case Some(u: User) => u.username match {
           case None => false
           case Some(username: String) => true
-            username.toLowerCase == Config.bot.name.toLowerCase
         }
       }
     }
