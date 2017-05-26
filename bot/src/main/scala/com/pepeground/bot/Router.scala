@@ -7,6 +7,7 @@ import info.mukel.telegrambot4s.methods._
 import info.mukel.telegrambot4s.models._
 
 import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
 
@@ -27,8 +28,11 @@ object Router extends TelegramBot with Polling with Commands {
     for (text <- msg.text) cleanCmd(text) match {
       case c if expectedCmd(c, "/repost") => RepostHandler(msg).call() match {
         case Some(s: ForwardMessage) =>
-          request(s)
-          makeResponse(text, SendMessage(msg.sender, "reposted", replyToMessageId = msg.messageId))
+          request(s) onComplete {
+            case Success(_) => makeResponse(text, SendMessage(msg.sender, "reposted", replyToMessageId = msg.messageId))
+            case Failure(_) =>
+          }
+
         case None =>
       }
       case c if expectedCmd(c, "/get_stats") => GetStatsHandler(msg).call() match {
@@ -61,6 +65,39 @@ object Router extends TelegramBot with Polling with Commands {
         case None =>
       }
       case c if expectedCmd(c, "/ping") => PingHandler(msg).call() match {
+        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case None =>
+      }
+      case c if expectedCmd(c, "/set_repost_channel") => {
+        val chatUsername: Option[String] = msg.entities match {
+          case Some(msgEntities: Seq[MessageEntity]) => {
+            msgEntities.find {
+              msgEntity: MessageEntity => msgEntity.`type` == "mention"
+            } match {
+              case Some(msgEntity: MessageEntity) => {
+                val offset: Int = msgEntity.offset
+                text.substring(offset, offset + msgEntity.length)
+              }
+              case None => None
+            }
+          }
+          case _ => None
+        }
+
+        val chatMemberRequest: Option[Future[ChatMember]] = msg.from.flatMap {
+          u: User => request(GetChatMember(Left(msg.chat.id), u.id.toLong))
+        }
+
+        chatUsername match {
+          case Some(l: String) =>
+            SetRepostChatHandler(msg, chatMemberRequest).call(l) match {
+              case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+              case None =>
+            }
+          case None => makeResponse(text, SendMessage(msg.sender, "No chat username", replyToMessageId = msg.messageId))
+        }
+      }
+      case c if expectedCmd(c, "/get_repost_channel") => GetRepostChatHandler(msg).call() match {
         case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
         case None =>
       }
