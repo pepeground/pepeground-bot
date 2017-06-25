@@ -41,7 +41,7 @@ lazy val bot = (project in file("bot")).
     libraryDependencies ++= Seq(
       "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
       "com.danielasfregola" %% "twitter4s" % "5.1",
-      "info.mukel" %% "telegrambot4s" % "2.1.0-SNAPSHOT"
+      "info.mukel" % "telegrambot4s_2.12" % "2.9.5"
     )
   )
 

@@ -4,6 +4,7 @@ import com.pepeground.bot.Config
 import com.pepeground.core.entities.ChatEntity
 import com.pepeground.core.repositories.{ChatRepository, ContextRepository}
 import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
+import info.mukel.telegrambot4s.models.ChatType._
 
 import scala.util.Random
 
@@ -13,7 +14,7 @@ class GenericHandler(message: Message) {
   }
 
   def isChatChanged: Boolean = chatName != chat.name.getOrElse("") || migrationId != telegramId
-  def isPrivate: Boolean = message.chat.`type` == "private"
+  def isPrivate: Boolean = chatType == "chat"
   def isRandomAnswer: Boolean = scala.util.Random.nextInt(100) < chat.randomChance
 
   def isReplyToBot: Boolean = message.replyToMessage match {
@@ -76,7 +77,13 @@ class GenericHandler(message: Message) {
   lazy val chat: ChatEntity = ChatRepository.getOrCreateBy(telegramId, chatName, chatType)
   lazy val telegramId: Long = message.chat.id
   lazy val migrationId: Long = message.migrateToChatId.getOrElse(telegramId)
-  lazy val chatType: String = message.chat.`type`
+  lazy val chatType: String = message.chat.`type` match {
+    case Private => "chat"
+    case Supergroup => "supergroup"
+    case Group => "faction"
+    case Channel => "channel"
+    case _ => "chat"
+  }
   lazy val chatName: String = message.chat.title.getOrElse(fromUsername)
   lazy val fromUsername: String = message.from match {
     case Some(u: User) => u.username.getOrElse("Unknown")
