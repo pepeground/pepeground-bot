@@ -1,3 +1,21 @@
+lazy val versions = new {
+  val akka = "2.4.17"
+  val scalikejdbc = "2.5.1"
+  val telegram4s = "2.9.5"
+  val twitter4s = "5.1"
+  val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
+  val flyway = "4.1.2"
+  val scalaLogging = "3.5.0"
+  val logback = "1.2.2"
+  val typesafeConfig = "1.3.1"
+  val postgresql = "9.4.1212"
+  val commonsDbcp2 = "2.1.1"
+  val jodaTime = "2.9.9"
+  val redisClient = "3.4"
+  val ravenLogback = "8.0.2"
+  val scalatest = "3.0.1"
+}
+
 lazy val commonSettings = Seq(
   organization := "com.pepeground",
   scalaVersion := "2.12.1",
@@ -10,19 +28,19 @@ lazy val commonSettings = Seq(
   parallelExecution in Test := false,
   test in assembly := {},
   libraryDependencies ++= Seq(
-    "ch.qos.logback" % "logback-classic" % "1.2.2",
-    "com.typesafe" % "config" % "1.3.1",
-    "org.scalikejdbc" %% "scalikejdbc"  % "2.5.1",
-    "org.scalikejdbc" %% "scalikejdbc-config" % "2.5.1",
-    "org.postgresql" % "postgresql" % "9.4.1212",
-    "org.apache.commons" % "commons-dbcp2" % "2.1.1",
-    "joda-time" % "joda-time" % "2.9.9",
-    "net.debasishg" %% "redisclient" % "3.4",
-    "com.typesafe.akka" %% "akka-actor" % "2.4.17",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-    "org.flywaydb" % "flyway-core" % "4.1.2",
-    "com.getsentry.raven" % "raven-logback" % "8.0.2",
-    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+    "ch.qos.logback" % "logback-classic" % versions.logback,
+    "com.typesafe" % "config" % versions.typesafeConfig,
+    "org.scalikejdbc" %% "scalikejdbc"  % versions.scalikejdbc,
+    "org.scalikejdbc" %% "scalikejdbc-config" % versions.scalikejdbc,
+    "org.postgresql" % "postgresql" % versions.postgresql,
+    "org.apache.commons" % "commons-dbcp2" % versions.commonsDbcp2,
+    "joda-time" % "joda-time" % versions.jodaTime,
+    "net.debasishg" %% "redisclient" % versions.redisClient,
+    "com.typesafe.akka" %% "akka-actor" % versions.akka,
+    "com.typesafe.scala-logging" %% "scala-logging" % versions.scalaLogging,
+    "org.flywaydb" % "flyway-core" % versions.flyway,
+    "com.getsentry.raven" % "raven-logback" % versions.ravenLogback,
+    "org.scalatest" %% "scalatest" % versions.scalatest % "test"
   )
 )
 
@@ -39,9 +57,9 @@ lazy val bot = (project in file("bot")).
     name := "bot",
     mainClass in (Compile,run) := Some("com.pepeground.bot.Main"),
     libraryDependencies ++= Seq(
-      "com.enragedginger" %% "akka-quartz-scheduler" % "1.6.0-akka-2.4.x",
-      "com.danielasfregola" %% "twitter4s" % "5.1",
-      "info.mukel" % "telegrambot4s_2.12" % "2.9.5"
+      "com.enragedginger" %% "akka-quartz-scheduler" % versions.akkaQuartzScheduler,
+      "com.danielasfregola" %% "twitter4s" % versions.twitter4s,
+      "info.mukel" % "telegrambot4s_2.12" % versions.telegram4s
     )
   )
 
