@@ -1,6 +1,6 @@
 lazy val versions = new {
   val akka = "2.4.17"
-  val scalikejdbc = "2.5.1"
+  val scalikejdbc = "3.0.1"
   val telegram4s = "2.9.5"
   val twitter4s = "5.1"
   val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
