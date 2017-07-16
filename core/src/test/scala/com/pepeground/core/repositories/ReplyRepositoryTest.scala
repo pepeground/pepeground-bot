@@ -93,7 +93,7 @@ class ReplyRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback
 
   behavior of "getReplyOrCreateBy"
 
-  it should "return existed reply if reply not exists" in { implicit session =>
+  it should "return existed reply if reply exists" in { implicit session =>
     val chat = ChatRepository.create(1, "Some chat", "private")
     val word1 = WordRepository.create("hello")
     val word2 = WordRepository.create("world")
@@ -106,5 +106,20 @@ class ReplyRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback
     val sameReply = ReplyRepository.getReplyOrCreateBy(pair.id, word3)
 
     assert(reply.id == sameReply.id)
+  }
+
+  it should "create a new reply if reply does not exists" in { implicit session =>
+    val chat = ChatRepository.create(1, "Some chat", "private")
+    val word1 = WordRepository.create("hello")
+    val word2 = WordRepository.create("world")
+    val word3 = WordRepository.create("scala")
+
+    val pair = PairRepository.createPairBy(chat.id, word1, word2)
+
+    val reply = ReplyRepository.createReplyBy(pair.id, word2)
+
+    val newReply = ReplyRepository.getReplyOrCreateBy(pair.id, word3)
+
+    assert(reply.id != newReply.id)
   }
 }
