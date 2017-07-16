@@ -40,7 +40,7 @@ class TwitterActor extends Actor {
           learnService.learnPair()
         }
 
-        if (tweets.nonEmpty) SubscriptionRepository.updateSubscription(s.id, tweets.head.id)
+        if (tweets.nonEmpty) DB localTx { implicit session => SubscriptionRepository.updateSubscription(s.id, tweets.head.id) }
       case Failure(_) =>
     }
   }

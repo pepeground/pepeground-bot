@@ -12,7 +12,7 @@ object SubscriptionRepository {
     }.map(rs => SubscriptionEntity(c)(rs)).list().apply()
   }
 
-  def updateSubscription(id: Long, sinceId: Long): Unit = DB localTx { implicit session =>
+  def updateSubscription(id: Long, sinceId: Long)(implicit session: DBSession): Unit = {
     withSQL {
       update(SubscriptionEntity).set(
         SubscriptionEntity.column.sinceId -> sinceId
