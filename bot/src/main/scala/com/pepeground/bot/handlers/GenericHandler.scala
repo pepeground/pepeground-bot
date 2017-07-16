@@ -5,10 +5,11 @@ import com.pepeground.core.entities.ChatEntity
 import com.pepeground.core.repositories.{ChatRepository, ContextRepository}
 import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
 import info.mukel.telegrambot4s.models.ChatType._
+import scalikejdbc._
 
 import scala.util.Random
 
-class GenericHandler(message: Message) {
+class GenericHandler(message: Message)(implicit session: DBSession) {
   def before(): Unit = {
     if (isChatChanged) ChatRepository.updateChat(chat.id, Option(chatName), migrationId)
   }

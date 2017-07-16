@@ -40,7 +40,8 @@ lazy val commonSettings = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % versions.scalaLogging,
     "org.flywaydb" % "flyway-core" % versions.flyway,
     "com.getsentry.raven" % "raven-logback" % versions.ravenLogback,
-    "org.scalatest" %% "scalatest" % versions.scalatest % "test"
+    "org.scalatest" %% "scalatest" % versions.scalatest % "test",
+    "org.scalikejdbc" %% "scalikejdbc-test" % versions.scalikejdbc % "test"
   )
 )
 

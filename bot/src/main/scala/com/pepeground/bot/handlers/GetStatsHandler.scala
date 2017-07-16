@@ -5,12 +5,12 @@ import info.mukel.telegrambot4s.models.Message
 import scalikejdbc._
 
 object GetStatsHandler {
-  def apply(message: Message): GetStatsHandler = {
+  def apply(message: Message)(implicit session: DBSession): GetStatsHandler = {
     new GetStatsHandler(message)
   }
 }
 
-class GetStatsHandler(message: Message) extends GenericHandler(message) {
+class GetStatsHandler(message: Message)(implicit session: DBSession) extends GenericHandler(message) {
   def call(): Option[String] = {
     super.before()
 

@@ -2,12 +2,15 @@ package com.pepeground.core.repositories
 
 import com.pepeground.core.enums.ChatType
 import org.flywaydb.core.Flyway
+import scalikejdbc._
+import scalikejdbc.scalatest.AutoRollback
 import org.scalatest._
+import org.scalatest.fixture.FlatSpec
+
 import scalikejdbc.ConnectionPool
 import scalikejdbc.config.DBs
-import scalikejdbc._
 
-class ChatRepositoryTest extends FunSpec with Matchers with BeforeAndAfter {
+class ChatRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback {
   before {
     DBs.setupAll()
 
@@ -19,86 +22,80 @@ class ChatRepositoryTest extends FunSpec with Matchers with BeforeAndAfter {
     flyway.migrate()
   }
 
-  describe("create") {
-    it("creates new chat") {
-      val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-      assert(newChat.telegramId == 1)
-      assert(newChat.name.get == "Some chat")
-      assert(newChat.chatType == ChatType("private"))
-    }
+  behavior of "Create"
+
+  it should "create new chat" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    assert(newChat.telegramId == 1)
+    assert(newChat.name.get == "Some chat")
+    assert(newChat.chatType == ChatType("private"))
   }
 
-  describe("getChatById") {
-    it("returns chat by id") {
-      val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-      val chat = DB readOnly { implicit session => ChatRepository.getChatById(newChat.id) }
+  behavior of "getChatById"
 
-      assert(newChat.id == chat.get.id)
-    }
+  it should "return chat by id" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    val chat = ChatRepository.getChatById(newChat.id)
+
+    assert(newChat.id == chat.get.id)
   }
 
-  describe("getOrCreateBy") {
-    describe("chat already exists") {
-      it("returns existed chat") {
-        val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-        val chat = DB readOnly { implicit session =>
-          ChatRepository.getOrCreateBy(newChat.telegramId, newChat.name.get, ChatType(newChat.chatType))
-        }
+  behavior of "getChatById"
 
-        assert(chat.id == newChat.id)
-      }
-    }
+  it should "return exited chat if chat already existed" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    val chat = ChatRepository.getOrCreateBy(newChat.telegramId, newChat.name.get, ChatType(newChat.chatType))
 
-    describe("chat not exists") {
-      it("returns new chat") {
-        val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-        val chat = DB readOnly { implicit session =>
-          ChatRepository.getOrCreateBy(2, newChat.name.get, ChatType(newChat.chatType))
-        }
-
-        assert(chat.id != newChat.id)
-      }
-    }
+    assert(chat.id == newChat.id)
   }
 
-  describe("updateRandomChance") {
-    it("updates random chance") {
-      val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-      DB localTx { implicit session => ChatRepository.updateRandomChance(newChat.id, 50) }
-      val updatedChat = DB readOnly { implicit session => ChatRepository.getChatById(newChat.id) }
+  it should "return new chat if chat not existed" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    val chat = ChatRepository.getOrCreateBy(2, newChat.name.get, ChatType(newChat.chatType))
 
-      assert(newChat.randomChance != updatedChat.get.randomChance)
-    }
+    assert(chat.id != newChat.id)
   }
 
-  describe("updateRepostChat") {
-    it("updates repost chat") {
-      val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-      DB localTx { implicit session => ChatRepository.updateRepostChat(newChat.id, "@ti_pidor") }
-      val updatedChat = DB readOnly { implicit session => ChatRepository.getChatById(newChat.id) }
+  behavior of "updateRandomChance"
 
-      assert(newChat.repostChatUsername != updatedChat.get.repostChatUsername)
-    }
+  it should "update random chance" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    ChatRepository.updateRandomChance(newChat.id, 50)
+
+    val updatedChat = ChatRepository.getChatById(newChat.id)
+
+    assert(newChat.randomChance != updatedChat.get.randomChance)
   }
 
-  describe("updateChat") {
-    it("updates chat") {
-      val newChat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-      DB localTx { implicit session => ChatRepository.updateChat(newChat.id, Some("KEK"), 3) }
-      val updatedChat = DB readOnly { implicit session => ChatRepository.getChatById(newChat.id) }
+  behavior of "updateRepostChat"
 
-      assert(newChat.id == updatedChat.get.id)
-      assert(newChat.name != updatedChat.get.name)
-      assert(newChat.telegramId != updatedChat.get.telegramId)
-    }
+  it should "update repost chat" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    ChatRepository.updateRepostChat(newChat.id, "@ti_pidor")
+
+    val updatedChat = ChatRepository.getChatById(newChat.id)
+
+    assert(newChat.repostChatUsername != updatedChat.get.repostChatUsername)
   }
 
-  describe("getByTelegramId") {
-    it("returns chat by telegram id") {
-      val newChat = DB localTx { implicit session => ChatRepository.create(4, "Some chat", "private") }
-      val byTelegramId = DB readOnly { implicit session => ChatRepository.getByTelegramId(newChat.telegramId) }
+  behavior of "updateChat"
 
-      assert(newChat.id == byTelegramId.get.id)
-    }
+  it should "update chat" in { implicit session =>
+    val newChat = ChatRepository.create(1, "Some chat", "private")
+    ChatRepository.updateChat(newChat.id, Some("KEK"), 3)
+    val updatedChat = ChatRepository.getChatById(newChat.id)
+
+    assert(newChat.id == updatedChat.get.id)
+    assert(newChat.name != updatedChat.get.name)
+    assert(newChat.telegramId != updatedChat.get.telegramId)
+  }
+
+  behavior of "getByTelegramId"
+
+  it should "return chat by telegram id" in { implicit session =>
+    val newChat = ChatRepository.create(4, "Some chat", "private")
+    val byTelegramId = ChatRepository.getByTelegramId(newChat.telegramId)
+
+    assert(newChat.id == byTelegramId.get.id)
   }
 }

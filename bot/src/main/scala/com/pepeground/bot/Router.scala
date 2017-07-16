@@ -10,6 +10,7 @@ import scala.util.{Failure, Success, Try}
 import scala.concurrent.Future
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
+import scalikejdbc._
 
 object Router extends TelegramBot with Polling with Commands {
   def token = Config.bot.telegramToken
@@ -18,13 +19,15 @@ object Router extends TelegramBot with Polling with Commands {
   private val botName = Config.bot.name.toLowerCase
 
   override def onMessage(msg: Message): Unit = {
-    Try(processMessage(msg)) match {
-      case Success(_: Unit) =>
-      case Failure(e: Throwable) => throw e
+    DB localTx { implicit session =>
+      Try(processMessage(msg)) match {
+        case Success(_: Unit) =>
+        case Failure(e: Throwable) => throw e
+      }
     }
   }
 
-  private def processMessage(msg: Message): Unit = {
+  private def processMessage(msg: Message)(implicit session: DBSession): Unit = {
     for (text <- msg.text) cleanCmd(text) match {
       case c if expectedCmd(c, "/repost") => RepostHandler(msg).call() match {
         case Some(s: ForwardMessage) =>
@@ -116,7 +119,7 @@ object Router extends TelegramBot with Polling with Commands {
     }
   }
 
-  private def handleMessage(msg: Message): Unit = {
+  private def handleMessage(msg: Message)(implicit session: DBSession): Unit = {
     MessageHandler(msg).call() match {
       case Some(res: Either[Option[String], Option[String]]) => res match {
         case Left(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.sender, s.get, replyToMessageId = msg.messageId))

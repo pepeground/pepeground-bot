@@ -33,7 +33,7 @@ object WordRepository {
     withSQL {
       insert.into(WordEntity).namedValues(
         WordEntity.column.word -> word
-      ).onConflictDoNothing().returning(WordEntity.column.id)
+      ).onConflictDoNothing().returningId
     }.map(rs => rs.long("id")).single().apply()
   }
 

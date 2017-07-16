@@ -1,14 +1,15 @@
 package com.pepeground.bot.handlers
 
 import info.mukel.telegrambot4s.models.Message
+import scalikejdbc.DBSession
 
 object GetGabHandler {
-  def apply(message: Message): GetGabHandler = {
+  def apply(message: Message)(implicit session: DBSession): GetGabHandler = {
     new GetGabHandler(message)
   }
 }
 
-class GetGabHandler(message: Message) extends GenericHandler(message) {
+class GetGabHandler(message: Message)(implicit session: DBSession) extends GenericHandler(message) {
   def call(): Option[String] = {
     super.before()
 

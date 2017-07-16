@@ -1,12 +1,14 @@
 package com.pepeground.core.repositories
 
 import org.flywaydb.core.Flyway
+import scalikejdbc.scalatest.AutoRollback
 import org.scalatest._
+import org.scalatest.fixture.FlatSpec
+
 import scalikejdbc.ConnectionPool
 import scalikejdbc.config.DBs
-import scalikejdbc._
 
-class PairRepositoryTest extends FunSpec with Matchers with BeforeAndAfter {
+class PairRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback {
   before {
     DBs.setupAll()
 
@@ -18,59 +20,55 @@ class PairRepositoryTest extends FunSpec with Matchers with BeforeAndAfter {
     flyway.migrate()
   }
 
-  describe("createPairBy") {
-    it("creates new pair") {
-      val chat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-      val word1 = DB localTx { implicit session => WordRepository.create("hello") }
-      val word2 = DB localTx { implicit session => WordRepository.create("world") }
+  behavior of "createPairBy"
 
-      val pair = DB localTx { implicit session => PairRepository.createPairBy(chat.id, word1, word2) }
+  it should "creates new pair" in { implicit session =>
+    val chat = ChatRepository.create(1, "Some chat", "private")
+    val word1 = WordRepository.create("hello")
+    val word2 = WordRepository.create("world")
 
-      assert(pair.firstId == word1)
-      assert(pair.secondId == word2)
-    }
+    val pair = PairRepository.createPairBy(chat.id, word1, word2)
+
+    assert(pair.firstId == word1)
+    assert(pair.secondId == word2)
   }
 
-  describe("getPairOrCreateBy") {
-    describe("when pair already exists") {
-      it("it returns existed pair") {
-        val chat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-        val word1 = DB localTx { implicit session => WordRepository.create("hello") }
-        val word2 = DB localTx { implicit session => WordRepository.create("world") }
+  behavior of "getPairOrCreateBy"
 
-        val existedPair = DB localTx { implicit session => PairRepository.createPairBy(chat.id, word1, word2) }
-        val pair = DB localTx { implicit session => PairRepository.getPairOrCreateBy(chat.id, word1, word2) }
+  it should "return existed pair if pair already exists" in { implicit session =>
+    val chat = ChatRepository.create(1, "Some chat", "private")
+    val word1 = WordRepository.create("hello")
+    val word2 = WordRepository.create("world")
 
-        assert(existedPair.id == pair.id)
-      }
-    }
+    val existedPair = PairRepository.createPairBy(chat.id, word1, word2)
+    val pair = PairRepository.getPairOrCreateBy(chat.id, word1, word2)
 
-    describe("new pair") {
-      it("returns new pair") {
-        val chat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
-        val word1 = DB localTx { implicit session => WordRepository.create("hello") }
-        val word2 = DB localTx { implicit session => WordRepository.create("world") }
-        val word3 = DB localTx { implicit session => WordRepository.create("scala") }
-
-        val existedPair = DB localTx { implicit session => PairRepository.createPairBy(chat.id, word1, word2) }
-        val pair = DB localTx { implicit session => PairRepository.getPairOrCreateBy(chat.id, word1, word3) }
-
-        assert(existedPair.id != pair.id)
-      }
-    }
+    assert(existedPair.id == pair.id)
   }
 
-  describe("getPairBy") {
-    it("returns pair") {
-      val chat = DB localTx { implicit session => ChatRepository.create(1, "Some chat", "private") }
+  it should "return new pair if pair does not exists" in { implicit session =>
+    val chat = ChatRepository.create(1, "Some chat", "private")
+    val word1 = WordRepository.create("hello")
+    val word2 = WordRepository.create("world")
+    val word3 = WordRepository.create("scala")
 
-      val word1 = DB localTx { implicit session => WordRepository.create("hello") }
-      val word2 = DB localTx { implicit session => WordRepository.create("world") }
+    val existedPair = PairRepository.createPairBy(chat.id, word1, word2)
+    val pair = PairRepository.getPairOrCreateBy(chat.id, word1, word3)
 
-      val existedPair = DB localTx { implicit session => PairRepository.createPairBy(chat.id, word1, word2) }
-      val pair = DB readOnly { implicit session => PairRepository.getPairBy(chat.id, word1, word2)}
+    assert(existedPair.id != pair.id)
+  }
 
-      assert(existedPair.id == pair.get.id)
-    }
+  behavior of "getPairBy"
+
+  it should "return pair" in { implicit session =>
+    val chat = ChatRepository.create(1, "Some chat", "private")
+
+    val word1 = WordRepository.create("hello")
+    val word2 = WordRepository.create("world")
+
+    val existedPair = PairRepository.createPairBy(chat.id, word1, word2)
+    val pair = PairRepository.getPairBy(chat.id, word1, word2)
+
+    assert(existedPair.id == pair.get.id)
   }
 }

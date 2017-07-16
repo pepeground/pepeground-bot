@@ -1,17 +1,19 @@
 package com.pepeground.bot.handlers
 
 import com.pepeground.core.repositories.ChatRepository
-import info.mukel.telegrambot4s.models.{Message, ChatMember}
-import scala.concurrent.{Future, Await}
+import info.mukel.telegrambot4s.models.{ChatMember, Message}
+import scalikejdbc.DBSession
+
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 object SetRepostChatHandler {
-  def apply(message: Message, chatMemberRequest: Option[Future[ChatMember]]): SetRepostChatHandler = {
+  def apply(message: Message, chatMemberRequest: Option[Future[ChatMember]])(implicit session: DBSession): SetRepostChatHandler = {
     new SetRepostChatHandler(message, chatMemberRequest)
   }
 }
 
-class SetRepostChatHandler(message: Message, chatMemberRequest: Option[Future[ChatMember]]) extends GenericHandler(message) {
+class SetRepostChatHandler(message: Message, chatMemberRequest: Option[Future[ChatMember]])(implicit session: DBSession) extends GenericHandler(message) {
   final val AdminStatuses = Array("creator", "administrator")
 
   def call(chatUsername: String): Option[String] = {

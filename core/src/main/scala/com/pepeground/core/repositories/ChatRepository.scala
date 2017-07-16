@@ -23,14 +23,14 @@ object ChatRepository {
     }.map(rs => ChatEntity(c)(rs)).single.apply()
   }
 
-  def getOrCreateBy(telegramId: Long, name: String, chatType: String): ChatEntity = DB localTx { implicit session =>
+  def getOrCreateBy(telegramId: Long, name: String, chatType: String)(implicit  session: DBSession): ChatEntity = {
     getByTelegramId(telegramId) match {
       case Some(chat: ChatEntity) => chat
       case None => create(telegramId, name, chatType)
     }
   }
 
-  def updateRandomChance(id: Long, randomChance: Int): Unit = DB localTx { implicit session =>
+  def updateRandomChance(id: Long, randomChance: Int)(implicit  session: DBSession): Unit = {
     withSQL {
       update(ChatEntity).set(
         ChatEntity.column.randomChance -> randomChance,
@@ -39,7 +39,7 @@ object ChatRepository {
     }.update().apply()
   }
 
-  def updateRepostChat(id: Long, repostChatUsername: String): Unit = DB localTx { implicit session =>
+  def updateRepostChat(id: Long, repostChatUsername: String)(implicit  session: DBSession): Unit = {
     withSQL {
       update(ChatEntity).set(
         ChatEntity.column.repostChatUsername -> repostChatUsername,
@@ -48,7 +48,7 @@ object ChatRepository {
     }.update().apply()
   }
 
-  def updateChat(id: Long, name: Option[String], telegramId: Long): Unit = DB localTx { implicit session =>
+  def updateChat(id: Long, name: Option[String], telegramId: Long)(implicit  session: DBSession): Unit = {
     withSQL {
       update(ChatEntity).set(
         ChatEntity.column.name -> name,
