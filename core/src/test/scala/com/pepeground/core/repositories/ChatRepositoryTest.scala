@@ -22,7 +22,17 @@ class ChatRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback 
     flyway.migrate()
   }
 
-  behavior of "Create"
+  behavior of "getList"
+
+  it should "return list of chats" in { implicit session =>
+    val chat1 = ChatRepository.create(1, "Some chat 1", "private")
+    val chat2 = ChatRepository.create(2, "Some chat 2", "private")
+
+    val chatIds = ChatRepository.getList().map(_.id)
+    assert(chatIds == List(chat1.id, chat2.id))
+  }
+
+  behavior of "create"
 
   it should "create new chat" in { implicit session =>
     val newChat = ChatRepository.create(1, "Some chat", "private")

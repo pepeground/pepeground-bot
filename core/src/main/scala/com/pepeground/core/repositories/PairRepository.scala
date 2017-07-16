@@ -38,7 +38,7 @@ object PairRepository {
     }.map(rs => PairEntity(p)(rs)).single.apply()
   }
 
-  def createPairBy(chatId: Long, firstId: Option[Long], secondId: Option[Long])(implicit session: DBSession): PairEntity = {
+  def createPairBy(chatId: Long, firstId: Option[Long], secondId: Option[Long], updatedAt: DateTime = new DateTime())(implicit session: DBSession): PairEntity = {
     logger.info("Learn new pair for chat id %s".format(chatId))
 
     withSQL {
@@ -47,7 +47,7 @@ object PairRepository {
         PairEntity.column.firstId -> firstId,
         PairEntity.column.secondId -> secondId,
         PairEntity.column.createdAt -> new DateTime(),
-        PairEntity.column.updatedAt -> new DateTime()
+        PairEntity.column.updatedAt -> updatedAt
       ).onConflictDoNothing()
     }.update().apply()
 

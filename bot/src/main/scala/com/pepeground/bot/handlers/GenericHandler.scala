@@ -75,7 +75,7 @@ class GenericHandler(message: Message)(implicit session: DBSession) {
       .toList
   }
 
-  lazy val chat: ChatEntity = ChatRepository.getOrCreateBy(telegramId, chatName, chatType)
+  lazy val chat: ChatEntity = DB localTx { implicit session => ChatRepository.getOrCreateBy(telegramId, chatName, chatType) }
   lazy val telegramId: Long = message.chat.id
   lazy val migrationId: Long = message.migrateToChatId.getOrElse(telegramId)
   lazy val chatType: String = message.chat.`type` match {
