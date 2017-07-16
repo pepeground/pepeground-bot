@@ -9,19 +9,17 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import scala.util.control.Breaks._
 
-class StoryService(words: List[String], context: List[String], chatId: Long, sentences: Option[Int] = None) {
+class StoryService(words: List[String], context: List[String], chatId: Long, sentences: Option[Int] = None)(implicit session: DBSession) {
   var currentSentences: ListBuffer[String] = ListBuffer()
   var currentWordIds: ListBuffer[Long] = ListBuffer()
 
   def generate(): Option[String] = {
-    DB readOnly { implicit session =>
       val currentWords: Map[String, Long] = WordRepository.getByWords(words ++ context).map(w => w.word -> w.id).toMap
       currentWordIds = words.map(w => currentWords.get(w)).filter(_.isDefined).map(_.get).to[ListBuffer]
 
       for ( a <- 0 to sentences.getOrElse(Random.nextInt(2) + 1) ) {
         generateSentence()
       }
-    }
 
     if (currentSentences.nonEmpty) {
       Some(currentSentences.mkString(" "))
@@ -31,7 +29,7 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
   }
 
 
-  private def generateSentence()(implicit session: DBSession): Unit = {
+  private def generateSentence(): Unit = {
     var sentence: ListBuffer[String] = ListBuffer()
     var safetyCounter = 50
 

@@ -8,8 +8,8 @@ import com.pepeground.core.repositories.{PairRepository, ReplyRepository, WordRe
 import scala.collection.mutable.{Map => MMap}
 import scala.collection.mutable.ListBuffer
 
-class LearnService(words: List[String], chatId: Long) {
-  def learnPair(): Unit = DB localTx { implicit session =>
+class LearnService(words: List[String], chatId: Long)(implicit session: DBSession) {
+  def learnPair(): Unit = {
     WordRepository.learWords(words)
     var newWords: ListBuffer[Option[String]] = ListBuffer(None)
     val preloadedWords: Map[String, WordEntity] = WordRepository.getByWords(words).map(we => we.word -> we).toMap

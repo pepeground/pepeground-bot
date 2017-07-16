@@ -32,15 +32,17 @@ class TwitterActor extends Actor {
   def grabFromTwitter(s: SubscriptionEntity): Unit = {
     client.userTimelineForUser(s.name, include_rts=false, exclude_replies=true, since_id = s.sinceId).onComplete {
       case Success(d: RatedData[Seq[Tweet]]) =>
-        val tweets: Seq[Tweet] = d.data
+        DB localTx { implicit session =>
+          val tweets: Seq[Tweet] = d.data
 
-        tweets.foreach { t =>
-          logger.info(s"Learn tweet: ${t.text}")
-          val learnService = new LearnService(cleanWords(t.text), s.chatId)
-          learnService.learnPair()
+          tweets.foreach { t =>
+            logger.info(s"Learn tweet: ${t.text}")
+            val learnService = new LearnService(cleanWords(t.text), s.chatId)
+            learnService.learnPair()
+          }
+
+          if (tweets.nonEmpty) SubscriptionRepository.updateSubscription(s.id, tweets.head.id)
         }
-
-        if (tweets.nonEmpty) DB localTx { implicit session => SubscriptionRepository.updateSubscription(s.id, tweets.head.id) }
       case Failure(_) =>
     }
   }
