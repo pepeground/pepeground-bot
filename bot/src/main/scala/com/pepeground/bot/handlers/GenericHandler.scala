@@ -5,6 +5,8 @@ import com.pepeground.core.entities.ChatEntity
 import com.pepeground.core.repositories.{ChatRepository, ContextRepository}
 import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
 import info.mukel.telegrambot4s.models.ChatType._
+import org.slf4j.MDC
+import io.sentry.event.BreadcrumbBuilder
 import scalikejdbc._
 
 import scala.util.Random
@@ -12,6 +14,12 @@ import scala.util.Random
 class GenericHandler(message: Message)(implicit session: DBSession) {
   def before(): Unit = {
     if (isChatChanged) ChatRepository.updateChat(chat.id, Option(chatName), migrationId)
+
+    MDC.put("chat_id", chat.id.toString)
+    MDC.put("chat_name", chatName)
+    MDC.put("chat_type", chatType)
+    MDC.put("message", message.text.getOrElse("EMPTY"))
+    MDC.put("who", fromUsername)
   }
 
   def isChatChanged: Boolean = chatName != chat.name.getOrElse("") || migrationId != telegramId
@@ -70,7 +78,7 @@ class GenericHandler(message: Message)(implicit session: DBSession) {
     }
     textCopy
       .split("\\s+")
-      .filterNot(s => s == " " || s.isEmpty)
+      .filterNot(s => s == " " || s.isEmpty || s.length > 2000)
       .map(_.toLowerCase)
       .toList
   }

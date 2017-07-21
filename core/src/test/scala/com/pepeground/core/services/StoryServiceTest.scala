@@ -64,21 +64,4 @@ class StoryServiceTest extends FlatSpec with BeforeAndAfter with AutoRollback {
     assert(message.nonEmpty)
     assert(message.get.contains("hello world scala"))
   }
-
-  it should "generate with punctuation chars" in { implicit session =>
-    val newChat = ChatRepository.create(4, "Some chat", "private")
-
-    new LearnService(List("hello", "world.", "scala"), newChat.id).learnPair()
-
-    var timeOffset = new DateTime().minusMinutes(10)
-
-    sql"UPDATE pairs SET created_at = ${timeOffset}".update.apply()
-
-    val storySetvice = new StoryService(List("hello", "world.", "scala"), List(), newChat.id)
-
-    val message = storySetvice.generate()
-
-    assert(message.nonEmpty)
-    assert(message.get.contains("hello world. scala"))
-  }
 }

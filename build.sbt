@@ -12,7 +12,7 @@ lazy val versions = new {
   val commonsDbcp2 = "2.1.1"
   val jodaTime = "2.9.9"
   val redisClient = "3.4"
-  val ravenLogback = "8.0.2"
+  val sentryLogback = "1.3.0"
   val scalatest = "3.0.1"
 }
 
@@ -39,7 +39,7 @@ lazy val commonSettings = Seq(
     "com.typesafe.akka" %% "akka-actor" % versions.akka,
     "com.typesafe.scala-logging" %% "scala-logging" % versions.scalaLogging,
     "org.flywaydb" % "flyway-core" % versions.flyway,
-    "com.getsentry.raven" % "raven-logback" % versions.ravenLogback,
+    "io.sentry" % "sentry-logback" % versions.sentryLogback,
     "org.scalatest" %% "scalatest" % versions.scalatest % "test",
     "org.scalikejdbc" %% "scalikejdbc-test" % versions.scalikejdbc % "test"
   )
@@ -64,5 +64,16 @@ lazy val bot = (project in file("bot")).
     )
   )
 
+lazy val api = (project in file("api")).
+  dependsOn(core).
+  settings(
+    commonSettings,
+    name := "api",
+    mainClass in (Compile,run) := Some("com.pepeground.api.Main"),
+    libraryDependencies ++= Seq(
+      "org.jruby" % "jruby" % "9.1.+"
+    )
+  )
+
 lazy val root = (project in file("."))
-  .aggregate(bot, core)
+  .aggregate(bot, api, core)

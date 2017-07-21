@@ -13,21 +13,6 @@ object Main extends App {
 
     DBs.setupAll()
 
-    GlobalSettings.loggingSQLAndTime = LoggingSQLAndTimeSettings(
-      enabled = true,
-      singleLineMode = true,
-      logLevel = 'INFO
-    )
-
-    GlobalSettings.queryCompletionListener = (sql: String, params: Seq[Any], millis: Long) => {
-      if (millis > 1000L) {
-        logger.warn("completion", Map(
-          "sql" -> sql,
-          "params" -> params.mkString("[", ",", "]"),
-          "millis" -> millis))
-      }
-    }
-
     val flyway: Flyway = new Flyway()
     val dataSource = ConnectionPool.dataSource(ConnectionPool.DEFAULT_NAME)
 
