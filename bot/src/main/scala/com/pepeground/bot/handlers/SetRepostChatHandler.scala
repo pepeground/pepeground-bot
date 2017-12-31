@@ -2,13 +2,13 @@ package com.pepeground.bot.handlers
 
 import com.pepeground.core.repositories.ChatRepository
 import info.mukel.telegrambot4s.models.{ChatMember, Message}
-import scalikejdbc.DBSession
+import scalikejdbc.{AutoSession, DBSession}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 object SetRepostChatHandler {
-  def apply(message: Message, chatMemberRequest: Option[Future[ChatMember]])(implicit session: DBSession): SetRepostChatHandler = {
+  def apply(message: Message, chatMemberRequest: Option[Future[ChatMember]])(implicit session: DBSession = AutoSession): SetRepostChatHandler = {
     new SetRepostChatHandler(message, chatMemberRequest)
   }
 }

@@ -2,10 +2,10 @@ package com.pepeground.bot.handlers
 
 import com.pepeground.core.repositories.ChatRepository
 import info.mukel.telegrambot4s.models.Message
-import scalikejdbc.DBSession
+import scalikejdbc.{AutoSession, DBSession}
 
 object SetGabHandler {
-  def apply(message: Message)(implicit session: DBSession): SetGabHandler = {
+  def apply(message: Message)(implicit session: DBSession = AutoSession): SetGabHandler = {
     new SetGabHandler(message)
   }
 }

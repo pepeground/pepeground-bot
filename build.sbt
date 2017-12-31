@@ -1,7 +1,7 @@
 lazy val versions = new {
   val akka = "2.4.17"
-  val scalikejdbc = "3.0.1"
-  val telegram4s = "2.9.5"
+  val scalikejdbc = "3.1.0"
+  val telegram4s = "3.0.4"
   val twitter4s = "5.1"
   val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
   val flyway = "4.1.2"
@@ -60,7 +60,7 @@ lazy val bot = (project in file("bot")).
     libraryDependencies ++= Seq(
       "com.enragedginger" %% "akka-quartz-scheduler" % versions.akkaQuartzScheduler,
       "com.danielasfregola" %% "twitter4s" % versions.twitter4s,
-      "info.mukel" % "telegrambot4s_2.12" % versions.telegram4s
+      "info.mukel" %% "telegrambot4s" % versions.telegram4s
     )
   )
 

@@ -3,8 +3,6 @@ package com.pepeground.bot.handlers
 import com.pepeground.core.repositories.ContextRepository
 import com.pepeground.core.services.{LearnService, StoryService}
 import info.mukel.telegrambot4s.models.Message
-import com.typesafe.scalalogging._
-import org.slf4j.LoggerFactory
 import scalikejdbc.DBSession
 
 object MessageHandler {
@@ -14,16 +12,13 @@ object MessageHandler {
 }
 
 class MessageHandler(message: Message)(implicit session: DBSession) extends GenericHandler(message) {
-  private val logger = Logger(LoggerFactory.getLogger(this.getClass))
-  private lazy val learnService: LearnService = new LearnService(words, chat.id)
-  private lazy val storyService: StoryService = new StoryService(words, context, chat.id)
+  private lazy val learnService: LearnService = new LearnService(words, chat.id)(session)
+  private lazy val storyService: StoryService = new StoryService(words, context, chat.id)(session)
 
   def call(): Option[Either[Option[String], Option[String]]] = {
     super.before()
 
     if (!hasText || isEdition) return None
-
-    logger.info("Message received: %s from %s (%s)".format(message.text.getOrElse(""), chatName, migrationId))
 
     learnService.learnPair()
     ContextRepository.updateContext(chatContext, words)

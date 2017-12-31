@@ -2,10 +2,10 @@ package com.pepeground.bot.handlers
 
 import com.pepeground.core.services.StoryService
 import info.mukel.telegrambot4s.models.Message
-import scalikejdbc.DBSession
+import scalikejdbc.{AutoSession, DBSession}
 
 object CoolStoryHandler {
-  def apply(message: Message)(implicit session: DBSession): CoolStoryHandler = {
+  def apply(message: Message)(implicit session: DBSession = AutoSession): CoolStoryHandler = {
     new CoolStoryHandler(message)
   }
 }

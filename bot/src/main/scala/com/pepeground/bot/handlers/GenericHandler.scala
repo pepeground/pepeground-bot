@@ -3,17 +3,20 @@ package com.pepeground.bot.handlers
 import com.pepeground.bot.Config
 import com.pepeground.core.entities.ChatEntity
 import com.pepeground.core.repositories.{ChatRepository, ContextRepository}
-import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
+import info.mukel.telegrambot4s.models.{ChatId, Message, MessageEntity, User}
 import info.mukel.telegrambot4s.models.ChatType._
 import org.slf4j.MDC
-import io.sentry.event.BreadcrumbBuilder
 import scalikejdbc._
 
 import scala.util.Random
 
 class GenericHandler(message: Message)(implicit session: DBSession) {
   def before(): Unit = {
-    if (isChatChanged) ChatRepository.updateChat(chat.id, Option(chatName), migrationId)
+    if (isChatChanged) {
+      DB localTx { implicit session =>
+        ChatRepository.updateChat(chat.id, Option(chatName), migrationId)
+      }
+    }
 
     MDC.put("chat_id", chat.id.toString)
     MDC.put("chat_name", chatName)
@@ -83,9 +86,16 @@ class GenericHandler(message: Message)(implicit session: DBSession) {
       .toList
   }
 
+  def extractMigrationId: Long = {
+    message.migrateToChatId match {
+      case Some(c: ChatId) => c.id
+      case None => telegramId
+    }
+  }
+
   lazy val chat: ChatEntity = DB localTx { implicit session => ChatRepository.getOrCreateBy(telegramId, chatName, chatType) }
   lazy val telegramId: Long = message.chat.id
-  lazy val migrationId: Long = message.migrateToChatId.getOrElse(telegramId)
+  lazy val migrationId: Long = extractMigrationId
   lazy val chatType: String = message.chat.`type` match {
     case Private => "chat"
     case Supergroup => "supergroup"

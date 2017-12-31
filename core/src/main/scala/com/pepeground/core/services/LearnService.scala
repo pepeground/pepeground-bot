@@ -11,6 +11,7 @@ import scala.collection.mutable.ListBuffer
 class LearnService(words: List[String], chatId: Long)(implicit session: DBSession) {
   def learnPair(): Unit = {
     WordRepository.learWords(words)
+
     var newWords: ListBuffer[Option[String]] = ListBuffer(None)
     val preloadedWords: Map[String, WordEntity] = WordRepository.getByWords(words).map(we => we.word -> we).toMap
 
@@ -21,7 +22,7 @@ class LearnService(words: List[String], chatId: Long)(implicit session: DBSessio
     }
 
     newWords.last match {
-      case Some(s: String) => newWords += None
+      case Some(_: String) => newWords += None
       case _ =>
     }
 
