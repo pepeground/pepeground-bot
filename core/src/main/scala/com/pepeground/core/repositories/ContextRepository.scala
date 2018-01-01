@@ -12,10 +12,11 @@ object ContextRepository {
     clients.withClient { client =>
       val filteredWords: List[String] = words.distinct.map(_.toLowerCase).filter(!ctx.contains(_))
       val aggregatedWords: List[String] = (filteredWords ++ ctx).take(50)
+      val currentTail = if (aggregatedWords.length > 1) aggregatedWords.tail else List()
 
       client.pipeline { p =>
         p.del(path)
-        p.lpush(path, aggregatedWords.headOption.getOrElse(""), aggregatedWords.tail: _*)
+        p.lpush(path, aggregatedWords.headOption.getOrElse(""), currentTail: _*)
       }
     }
   }

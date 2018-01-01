@@ -15,7 +15,7 @@ class RepostHandler(message: Message)(implicit session: DBSession) extends Gener
   def call(): Option[ForwardMessage] = {
     super.before()
 
-    if(canRepost) {
+    if(canRepost && chat.repostChatUsername.isDefined) {
       Some(
         ForwardMessage(
           chat.repostChatUsername.get,
