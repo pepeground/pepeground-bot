@@ -63,7 +63,7 @@ class WordRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback 
   behavior of "learnWords"
 
   it should "learn new words" in { implicit session =>
-    WordRepository.learWords(List("hello", "world", "scala"))
+    WordRepository.learnWords(List("hello", "world", "scala"))
 
     val words = WordRepository.getByWords(List("hello", "world", "scala"))
 
@@ -72,7 +72,7 @@ class WordRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback 
 
   it should "skip already learned words" in { implicit session =>
     val word2 = WordRepository.create("world")
-    WordRepository.learWords(List("hello", "world", "scala"))
+    WordRepository.learnWords(List("hello", "world", "scala"))
 
     val words = WordRepository.getByWords(List("hello", "world", "scala"))
 

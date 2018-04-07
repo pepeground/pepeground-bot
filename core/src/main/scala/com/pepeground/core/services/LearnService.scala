@@ -10,7 +10,7 @@ import scala.collection.mutable.ListBuffer
 
 class LearnService(words: List[String], chatId: Long)(implicit session: DBSession) {
   def learnPair(): Unit = {
-    WordRepository.learWords(words)
+    WordRepository.learnWords(words)
     var newWords: ListBuffer[Option[String]] = ListBuffer(None)
     val preloadedWords: Map[String, WordEntity] = WordRepository.getByWords(words).map(we => we.word -> we).toMap
 
