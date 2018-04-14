@@ -37,7 +37,7 @@ object WordRepository {
     }.map(rs => rs.long("id")).single().apply()
   }
 
-  def learWords(words: List[String])(implicit session: DBSession): Unit = {
+  def learnWords(words: List[String])(implicit session: DBSession): Unit = {
     val existedWords: List[String] = getByWords(words).map(_.word)
 
     words.foreach { word =>
