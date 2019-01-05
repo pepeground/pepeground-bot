@@ -7,6 +7,7 @@ import com.pepeground.core.entities.ChatEntity
 import scalikejdbc._
 import org.joda.time._
 import com.pepeground.core.support.PostgreSQLSyntaxSupport._
+import scalikejdbc.jodatime.JodaParameterBinderFactory._
 
 object ChatRepository {
   private val c = ChatEntity.syntax("c")

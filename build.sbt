@@ -1,6 +1,6 @@
 lazy val versions = new {
   val akka = "2.4.17"
-  val scalikejdbc = "3.0.1"
+  val scalikejdbc = "3.3.2"
   val telegram4s = "2.9.5"
   val twitter4s = "5.1"
   val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
@@ -31,6 +31,7 @@ lazy val commonSettings = Seq(
     "ch.qos.logback" % "logback-classic" % versions.logback,
     "com.typesafe" % "config" % versions.typesafeConfig,
     "org.scalikejdbc" %% "scalikejdbc"  % versions.scalikejdbc,
+    "org.scalikejdbc" %% "scalikejdbc-joda-time"  % versions.scalikejdbc,
     "org.scalikejdbc" %% "scalikejdbc-config" % versions.scalikejdbc,
     "org.postgresql" % "postgresql" % versions.postgresql,
     "org.apache.commons" % "commons-dbcp2" % versions.commonsDbcp2,

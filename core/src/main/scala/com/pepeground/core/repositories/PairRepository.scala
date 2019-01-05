@@ -9,6 +9,7 @@ import sqls.{count, distinct}
 import com.pepeground.core.support.PostgreSQLSyntaxSupport._
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
+import scalikejdbc.jodatime.JodaParameterBinderFactory._
 
 object PairRepository {
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))

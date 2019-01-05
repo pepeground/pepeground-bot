@@ -2,6 +2,7 @@ package com.pepeground.core.entities
 
 import scalikejdbc._
 import org.joda.time._
+import scalikejdbc.jodatime.JodaTypeBinder._
 
 case class ChatEntity(id: Long, name: Option[String], telegramId: Long, repostChatUsername: Option[String],
                       chatType: Int, randomChance: Int, createdAt: DateTime, updatedAt: DateTime)
@@ -18,7 +19,7 @@ object ChatEntity extends SQLSyntaxSupport[ChatEntity] {
     rs.stringOpt(c.repostChatUsername),
     rs.int(c.chatType),
     rs.int(c.randomChance),
-    rs.jodaDateTime(c.createdAt),
-    rs.jodaDateTime(c.updatedAt)
+    rs.get(c.createdAt),
+    rs.get(c.updatedAt)
   )
 }
