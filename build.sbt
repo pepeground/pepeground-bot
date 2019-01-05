@@ -18,7 +18,7 @@ lazy val versions = new {
 
 lazy val commonSettings = Seq(
   organization := "com.pepeground",
-  scalaVersion := "2.12.1",
+  scalaVersion := "2.12.6",
   version := "0.1",
   resolvers ++= Seq(
     Resolver.sonatypeRepo("snapshots"),

@@ -1,6 +1,7 @@
 package com.pepeground.bot.actors
 
 import akka.actor.Actor
+import com.pepeground.bot.Config
 import com.pepeground.bot.signals.Tick
 import com.pepeground.core.repositories.PairRepository
 import com.typesafe.scalalogging.Logger
@@ -13,7 +14,7 @@ class CleanupActor extends Actor {
   def receive = {
     case Tick => DB localTx { implicit session =>
       logger.info("START REMOVAL")
-      val removedIds: List[Long] = PairRepository.removeOld()
+      val removedIds: List[Long] = PairRepository.removeOld(Config.bot.cleanupLimit)
 
       if(removedIds.isEmpty) {
         logger.info("NOTHING TO REMOVE")

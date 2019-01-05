@@ -5,7 +5,7 @@ import java.util.NoSuchElementException
 import com.pepeground.core.entities.{PairEntity, ReplyEntity}
 import org.joda.time.DateTime
 import scalikejdbc._
-import sqls.{ distinct, count }
+import sqls.{count, distinct}
 import com.pepeground.core.support.PostgreSQLSyntaxSupport._
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
@@ -71,14 +71,14 @@ object PairRepository {
     }.map(_.int(1)).single.apply().get
   }
 
-  def removeOld()(implicit session: DBSession): List[Long] = {
+  def removeOld(cleanupLimit: Int)(implicit session: DBSession): List[Long] = {
     val removeLt = new DateTime()
 
     val toRemovalIds: List[Long] = withSQL {
       select(p.id)
         .from(PairEntity as p)
         .where.lt(p.updatedAt, removeLt.minusMonths(3))
-        .limit(100)
+        .limit(cleanupLimit)
     }.map(_.long("id")).list().apply()
 
     withSQL {

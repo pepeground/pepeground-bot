@@ -10,6 +10,7 @@ object Config extends CoreConfig{
 
     lazy val twitter = botConfig.getBoolean("twitter")
 
+    lazy val cleanupLimit: Int = botConfig.getLong("cleanupLimit").toInt
     lazy val repostChatIds: List[Long] = botConfig.getLongList("repostChatIds").asScala.toList.map(_.toLong)
     lazy val repostChatId: Long = botConfig.getLong("repostChatId")
     lazy val telegramToken: String = botConfig.getString("telegramToken")
