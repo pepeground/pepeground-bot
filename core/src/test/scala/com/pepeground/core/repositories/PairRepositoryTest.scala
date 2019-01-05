@@ -117,7 +117,7 @@ class PairRepositoryTest extends FlatSpec with BeforeAndAfter with AutoRollback 
 
     PairRepository.removeOld(1)
 
-    assert(PairRepository.getPairsCount(chat.id) == 0
+    assert(PairRepository.getPairsCount(chat.id) == 0)
 
     PairRepository.createPairBy(chat.id, word1, word2, new DateTime().minusMonths(1))
 
