@@ -32,18 +32,18 @@ object Router extends TelegramBot with Polling with Commands {
       case c if expectedCmd(c, "/repost") => RepostHandler(msg).call() match {
         case Some(s: ForwardMessage) =>
           request(s) onComplete {
-            case Success(_) => makeResponse(text, SendMessage(msg.sender, "reposted", replyToMessageId = msg.messageId))
+            case Success(_) => makeResponse(text, SendMessage(msg.source, "reposted", replyToMessageId = msg.messageId))
             case Failure(_) =>
           }
 
         case None =>
       }
       case c if expectedCmd(c, "/get_stats") => GetStatsHandler(msg).call() match {
-        case Some(s: String) =>  makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) =>  makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case c if expectedCmd(c, "/cool_story") => CoolStoryHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s))
         case None =>
       }
       case c if expectedCmd(c, "/set_gab") =>
@@ -58,17 +58,17 @@ object Router extends TelegramBot with Polling with Commands {
         level match {
           case Some(l: Int) =>
             SetGabHandler(msg).call(l) match {
-              case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+              case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
               case None =>
             }
-          case None => makeResponse(text, SendMessage(msg.sender, "Wrong percent", replyToMessageId = msg.messageId))
+          case None => makeResponse(text, SendMessage(msg.source, "Wrong percent", replyToMessageId = msg.messageId))
         }
       case c if expectedCmd(c, "/get_gab") => GetGabHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case c if expectedCmd(c, "/ping") => PingHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case c if expectedCmd(c, "/set_repost_channel") => {
@@ -94,14 +94,14 @@ object Router extends TelegramBot with Polling with Commands {
         chatUsername match {
           case Some(l: String) =>
             SetRepostChatHandler(msg, chatMemberRequest).call(l) match {
-              case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+              case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
               case None =>
             }
-          case None => makeResponse(text, SendMessage(msg.sender, "No chat username", replyToMessageId = msg.messageId))
+          case None => makeResponse(text, SendMessage(msg.source, "No chat username", replyToMessageId = msg.messageId))
         }
       }
       case c if expectedCmd(c, "/get_repost_channel") => GetRepostChatHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.sender, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
         case None =>
       }
       case s =>
@@ -122,8 +122,8 @@ object Router extends TelegramBot with Polling with Commands {
   private def handleMessage(msg: Message)(implicit session: DBSession): Unit = {
     MessageHandler(msg).call() match {
       case Some(res: Either[Option[String], Option[String]]) => res match {
-        case Left(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.sender, s.get, replyToMessageId = msg.messageId))
-        case Right(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.sender, s.get))
+        case Left(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.source, s.get, replyToMessageId = msg.messageId))
+        case Right(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.source, s.get))
       }
       case _ =>
     }
