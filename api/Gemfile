@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+
+gem 'pry'
+gem 'dry-struct'
+gem 'grape'
+gem 'jruby-scala-collections', '>=0.1.1', require: 'jruby/scala_support'

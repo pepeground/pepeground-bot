@@ -7,3 +7,5 @@ bot/target
 core/target
 project/project
 project/target
+
+api/application.conf
