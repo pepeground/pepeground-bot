@@ -9,6 +9,12 @@ import com.pepeground.core.support.PostgreSQLSyntaxSupport._
 object ReplyRepository {
   private val r = ReplyEntity.syntax("r")
 
+  def hasWithWordId(wordId: Long)(implicit session: DBSession): Boolean = {
+    withSQL {
+      select(r.id).from(ReplyEntity as r).where.eq(r.wordId, wordId).limit(1)
+    }.map(rs => rs.long("id")).single.apply().isDefined
+  }
+
   def repliesForPair(pairId: Long)(implicit session: DBSession): List[ReplyEntity] = {
     withSQL {
       select

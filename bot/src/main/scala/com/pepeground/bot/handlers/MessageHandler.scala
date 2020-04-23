@@ -1,8 +1,9 @@
 package com.pepeground.bot.handlers
 
-import com.pepeground.core.repositories.ContextRepository
+import com.pepeground.core.repositories.{ContextRepository, LearnQueueRepository}
 import com.pepeground.core.services.{LearnService, StoryService}
-import info.mukel.telegrambot4s.models.Message
+import com.bot4s.telegram.models.Message
+import com.pepeground.bot.Config
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
 import scalikejdbc.DBSession
@@ -17,6 +18,7 @@ class MessageHandler(message: Message)(implicit session: DBSession) extends Gene
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private lazy val learnService: LearnService = new LearnService(words, chat.id)
   private lazy val storyService: StoryService = new StoryService(words, context, chat.id)
+  private lazy val learnQueueRepository = LearnQueueRepository
 
   def call(): Option[Either[Option[String], Option[String]]] = {
     super.before()
@@ -25,7 +27,8 @@ class MessageHandler(message: Message)(implicit session: DBSession) extends Gene
 
     logger.info("Message received: %s from %s (%s)".format(message.text.getOrElse(""), chatName, migrationId))
 
-    learnService.learnPair()
+    learn()
+
     ContextRepository.updateContext(chatContext, words)
 
     if (isReplyToBot) return Option(Left(storyService.generate()))
@@ -35,5 +38,13 @@ class MessageHandler(message: Message)(implicit session: DBSession) extends Gene
     if (isRandomAnswer) return Option(Right(storyService.generate()))
 
     None
+  }
+
+  private def learn(): Unit = {
+    if (Config.bot.asyncLear) {
+      learnQueueRepository.push(words, chat.id)
+    } else {
+      learnService.learnPair()
+    }
   }
 }

@@ -16,6 +16,12 @@ object PairRepository {
   private val p = PairEntity.syntax("p")
   private val r = ReplyEntity.syntax("r")
 
+  def hasWithWordId(wordId: Long)(implicit session: DBSession): Boolean = {
+    withSQL {
+      select(p.id).from(PairEntity as p).where.eq(p.firstId, wordId).or.eq(p.secondId, wordId).limit(1)
+    }.map(rs => rs.long("id")).single.apply().isDefined
+  }
+
   def getPairWithReplies(chatId: Long, firstIds: Option[Long], secondIds: List[Option[Long]])(implicit session: DBSession): List[PairEntity] = {
     var timeOffset = new DateTime
 

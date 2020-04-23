@@ -1,7 +1,7 @@
 lazy val versions = new {
   val akka = "2.4.17"
   val scalikejdbc = "3.3.2"
-  val telegram4s = "2.9.5"
+  val telegram4s = "4.4.0-RC2"
   val twitter4s = "5.1"
   val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
   val flyway = "4.1.2"
@@ -14,6 +14,7 @@ lazy val versions = new {
   val redisClient = "3.4"
   val sentryLogback = "1.3.0"
   val scalatest = "3.0.1"
+  val circle = "0.11.1"
 }
 
 lazy val commonSettings = Seq(
@@ -41,6 +42,9 @@ lazy val commonSettings = Seq(
     "com.typesafe.scala-logging" %% "scala-logging" % versions.scalaLogging,
     "org.flywaydb" % "flyway-core" % versions.flyway,
     "io.sentry" % "sentry-logback" % versions.sentryLogback,
+    "io.circe" %% "circe-core" % versions.circle,
+    "io.circe" %% "circe-generic" % versions.circle,
+    "io.circe" %% "circe-parser" % versions.circle,
     "org.scalatest" %% "scalatest" % versions.scalatest % "test",
     "org.scalikejdbc" %% "scalikejdbc-test" % versions.scalikejdbc % "test"
   )
@@ -61,7 +65,9 @@ lazy val bot = (project in file("bot")).
     libraryDependencies ++= Seq(
       "com.enragedginger" %% "akka-quartz-scheduler" % versions.akkaQuartzScheduler,
       "com.danielasfregola" %% "twitter4s" % versions.twitter4s,
-      "info.mukel" % "telegrambot4s_2.12" % versions.telegram4s
+      "com.bot4s" % "telegram-core_2.12" % versions.telegram4s,
+      "io.micrometer" % "micrometer-registry-prometheus" % "1.4.1",
+      "biz.enef" %% "slogging" % "0.6.1"
     )
   )
 

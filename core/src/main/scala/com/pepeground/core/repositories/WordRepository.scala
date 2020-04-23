@@ -11,6 +11,24 @@ object WordRepository {
   private val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private val w = WordEntity.syntax("w")
 
+  def getFirstId()(implicit session: DBSession): Option[Long] = {
+    withSQL {
+      select(sqls"MIN(id)").from(WordEntity as w)
+    }.map(rs => rs.long(1)).single.apply()
+  }
+
+  def getNextId(id: Long)(implicit session: DBSession): Option[Long] = {
+    withSQL {
+      select(w.id).from(WordEntity as w).where.gt(w.id, id).orderBy(w.id.asc).limit(1)
+    }.map(rs => rs.long("id")).single.apply()
+  }
+
+  def deleteById(id: Long)(implicit session: DBSession): Unit = {
+    withSQL {
+      delete.from(WordEntity as w).where.eq(w.id, id)
+    }.update().apply()
+  }
+
   def getByWords(words: List[String])(implicit session: DBSession): List[WordEntity] = {
     withSQL {
       select.from(WordEntity as w).where.in(w.word, words)

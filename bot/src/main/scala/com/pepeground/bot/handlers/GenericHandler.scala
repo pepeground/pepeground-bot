@@ -1,25 +1,24 @@
 package com.pepeground.bot.handlers
 
-import com.pepeground.bot.Config
+import java.util.concurrent.atomic.AtomicInteger
+
+import com.pepeground.bot.{Config, Prometheus}
 import com.pepeground.core.entities.ChatEntity
 import com.pepeground.core.repositories.{ChatRepository, ContextRepository}
-import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
-import info.mukel.telegrambot4s.models.ChatType._
-import org.slf4j.MDC
-import io.sentry.event.BreadcrumbBuilder
+import com.bot4s.telegram.models.{Message, MessageEntity, User}
+import com.bot4s.telegram.models.ChatType._
+import io.micrometer.core.instrument.Tag
 import scalikejdbc._
 
 import scala.util.Random
 
 class GenericHandler(message: Message)(implicit session: DBSession) {
+  private val messagesCounter = Prometheus.prometheusRegistry.counter("bot_messages")
+
   def before(): Unit = {
     if (isChatChanged) ChatRepository.updateChat(chat.id, Option(chatName), migrationId)
 
-    MDC.put("chat_id", chat.id.toString)
-    MDC.put("chat_name", chatName)
-    MDC.put("chat_type", chatType)
-    MDC.put("message", message.text.getOrElse("EMPTY"))
-    MDC.put("who", fromUsername)
+    messagesCounter.increment()
   }
 
   def isChatChanged: Boolean = chatName != chat.name.getOrElse("") || migrationId != telegramId

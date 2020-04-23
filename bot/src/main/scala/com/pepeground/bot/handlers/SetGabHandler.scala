@@ -1,7 +1,7 @@
 package com.pepeground.bot.handlers
 
 import com.pepeground.core.repositories.ChatRepository
-import info.mukel.telegrambot4s.models.Message
+import com.bot4s.telegram.models.Message
 import scalikejdbc.DBSession
 
 object SetGabHandler {

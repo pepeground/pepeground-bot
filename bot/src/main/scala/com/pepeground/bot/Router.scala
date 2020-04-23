@@ -1,27 +1,36 @@
 package com.pepeground.bot
 
+import com.bot4s.telegram.api.RequestHandler
+import com.bot4s.telegram.api.declarative.InlineQueries
+import com.bot4s.telegram.clients.FutureSttpClient
 import com.pepeground.bot.handlers._
-import info.mukel.telegrambot4s.Implicits._
-import info.mukel.telegrambot4s.api._
-import info.mukel.telegrambot4s.methods._
-import info.mukel.telegrambot4s.models._
+import com.bot4s.telegram.future.{Polling, TelegramBot, TelegramPolling}
+import com.bot4s.telegram.methods._
+import com.bot4s.telegram.models._
+import com.softwaremill.sttp.okhttp._
 
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.Future
 import com.typesafe.scalalogging._
-import org.slf4j.LoggerFactory
 import scalikejdbc._
+import slogging.{LogLevel, LoggerConfig, PrintLoggerFactory}
 
-object Router extends TelegramBot with Polling with Commands {
+object Router extends TelegramBot with TelegramPolling with InlineQueries[Future] {
   def token = Config.bot.telegramToken
 
-  override val logger = Logger(LoggerFactory.getLogger(this.getClass))
+  LoggerConfig.factory = PrintLoggerFactory()
+  LoggerConfig.level = LogLevel.ERROR
+
+
+  implicit val backend = OkHttpFutureBackend()
+  override val client: RequestHandler[Future] = new FutureSttpClient(token)
+
   private val botName = Config.bot.name.toLowerCase
 
-  override def onMessage(msg: Message): Unit = {
+  override def receiveMessage(msg: Message): Future[Unit] = {
     DB localTx { implicit session =>
       Try(processMessage(msg)) match {
-        case Success(_: Unit) =>
+        case Success(_: Unit) => Future {}
         case Failure(e: Throwable) => throw e
       }
     }
@@ -32,14 +41,14 @@ object Router extends TelegramBot with Polling with Commands {
       case c if expectedCmd(c, "/repost") => RepostHandler(msg).call() match {
         case Some(s: ForwardMessage) =>
           request(s) onComplete {
-            case Success(_) => makeResponse(text, SendMessage(msg.source, "reposted", replyToMessageId = msg.messageId))
+            case Success(_) => makeResponse(text, SendMessage(msg.source, "reposted", replyToMessageId = Some(msg.messageId)))
             case Failure(_) =>
           }
 
         case None =>
       }
       case c if expectedCmd(c, "/get_stats") => GetStatsHandler(msg).call() match {
-        case Some(s: String) =>  makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
+        case Some(s: String) =>  makeResponse(text, SendMessage(msg.source, s, replyToMessageId = Some(msg.messageId)))
         case None =>
       }
       case c if expectedCmd(c, "/cool_story") => CoolStoryHandler(msg).call() match {
@@ -58,17 +67,17 @@ object Router extends TelegramBot with Polling with Commands {
         level match {
           case Some(l: Int) =>
             SetGabHandler(msg).call(l) match {
-              case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
+              case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = Some(msg.messageId)))
               case None =>
             }
-          case None => makeResponse(text, SendMessage(msg.source, "Wrong percent", replyToMessageId = msg.messageId))
+          case None => makeResponse(text, SendMessage(msg.source, "Wrong percent", replyToMessageId = Some(msg.messageId)))
         }
       case c if expectedCmd(c, "/get_gab") => GetGabHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = Some(msg.messageId)))
         case None =>
       }
       case c if expectedCmd(c, "/ping") => PingHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = Some(msg.messageId)))
         case None =>
       }
       case c if expectedCmd(c, "/set_repost_channel") => {
@@ -79,7 +88,7 @@ object Router extends TelegramBot with Polling with Commands {
             } match {
               case Some(msgEntity: MessageEntity) => {
                 val offset: Int = msgEntity.offset
-                text.substring(offset, offset + msgEntity.length)
+                Some(text.substring(offset, offset + msgEntity.length))
               }
               case None => None
             }
@@ -87,21 +96,22 @@ object Router extends TelegramBot with Polling with Commands {
           case _ => None
         }
 
-        val chatMemberRequest: Option[Future[ChatMember]] = msg.from.flatMap {
-          u: User => request(GetChatMember(Left(msg.chat.id), u.id.toLong))
+        val chatMemberRequest: Option[Future[ChatMember]] = msg.from match {
+          case Some(u: User) => Some(request(GetChatMember(msg.chat.id, u.id)))
+          case None => None
         }
 
         chatUsername match {
           case Some(l: String) =>
             SetRepostChatHandler(msg, chatMemberRequest).call(l) match {
-              case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
+              case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = Some(msg.messageId)))
               case None =>
             }
-          case None => makeResponse(text, SendMessage(msg.source, "No chat username", replyToMessageId = msg.messageId))
+          case None => makeResponse(text, SendMessage(msg.source, "No chat username", replyToMessageId = Some(msg.messageId)))
         }
       }
       case c if expectedCmd(c, "/get_repost_channel") => GetRepostChatHandler(msg).call() match {
-        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = msg.messageId))
+        case Some(s: String) => makeResponse(text, SendMessage(msg.source, s, replyToMessageId = Some(msg.messageId)))
         case None =>
       }
       case s =>
@@ -122,7 +132,7 @@ object Router extends TelegramBot with Polling with Commands {
   private def handleMessage(msg: Message)(implicit session: DBSession): Unit = {
     MessageHandler(msg).call() match {
       case Some(res: Either[Option[String], Option[String]]) => res match {
-        case Left(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.source, s.get, replyToMessageId = msg.messageId))
+        case Left(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.source, s.get, replyToMessageId = Some(msg.messageId)))
         case Right(s: Option[String]) => if(s.nonEmpty) makeResponse("message", SendMessage(msg.source, s.get))
       }
       case _ =>
@@ -130,7 +140,6 @@ object Router extends TelegramBot with Polling with Commands {
   }
 
   private def makeResponse(context: String, msg: SendMessage): Unit = {
-    logger.info("Response for %s, with text: %s".format(context, msg.text))
     request(msg)
   }
 }

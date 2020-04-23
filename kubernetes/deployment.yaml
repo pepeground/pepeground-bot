@@ -1,27 +1,146 @@
-apiVersion: extensions/v1beta1
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: redis-master
+  namespace: pepeground
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: master
+          image: 'redis:5.0'
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: pepeground
+spec:
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  selector:
+    app: redis
+  clusterIP: 172.18.210.59
+  type: ClusterIP
+  sessionAffinity: None
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pepeground-bot
+  namespace: pepeground
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: pepeground-bot
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: pepeground-bot
     spec:
       containers:
-        - image: pepeground/pepeground-bot
-          name: pepeground-bot
-          command:
-            - '/usr/bin/java'
-            - '-jar'
-            - '-server'
-            - '-Dconfig.file=/usr/local/etc/application.conf'
-            - '/bot.jar'
-          volumeMounts:
-            - name: pepeground-conf
-              mountPath: /usr/local/etc
+      - command:
+        - /usr/local/openjdk-8/bin/java
+        - -jar
+        - -server
+        - -Dconfig.file=/usr/local/etc/application.conf
+        - /bot.jar
+        image: pepeground/pepeground-bot
+        ports:
+          - name: web
+            containerPort: 8080
+            protocol: TCP
+        imagePullPolicy: Always
+        name: pepeground-bot
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/local/etc
+          name: pepeground-conf
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
       volumes:
-        - name: pepeground-conf
-          configMap:
-            name: pepeground-conf
+      - configMap:
+          defaultMode: 420
+          name: pepeground-conf
+        name: pepeground-conf
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-operator
+  namespace: pepeground
+  labels:
+    app: pepeground-bot
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 8080
+      targetPort: web
+  selector:
+    app: pepeground-bot
+  type: ClusterIP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pepeground-bot
+  namespace: pepeground
+spec:
+  selector:
+    matchLabels:
+      app: pepeground-bot
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+      - pepeground
+  endpoints:
+  - port: web
