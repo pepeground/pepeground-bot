@@ -22,6 +22,6 @@ object Main extends App {
 
     Scheduler.setup()
 
-    Router.run()
+    new Router().run()
   }
 }

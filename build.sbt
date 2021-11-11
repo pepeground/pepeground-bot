@@ -1,7 +1,6 @@
 lazy val versions = new {
   val akka = "2.4.17"
   val scalikejdbc = "3.3.2"
-  val telegram4s = "2.9.5"
   val twitter4s = "5.1"
   val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
   val flyway = "4.1.2"
@@ -22,7 +21,7 @@ lazy val commonSettings = Seq(
   version := "0.1",
   resolvers ++= Seq(
     Resolver.sonatypeRepo("snapshots"),
-    "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    "Typesafe Repository" at "https://repo.typesafe.com/typesafe/releases/",
     "Flyway" at "https://flywaydb.org/repo"
   ),
   parallelExecution in Test := false,
@@ -61,7 +60,8 @@ lazy val bot = (project in file("bot")).
     libraryDependencies ++= Seq(
       "com.enragedginger" %% "akka-quartz-scheduler" % versions.akkaQuartzScheduler,
       "com.danielasfregola" %% "twitter4s" % versions.twitter4s,
-      "info.mukel" % "telegrambot4s_2.12" % versions.telegram4s
+      "com.bot4s" %% "telegram-core" % "5.0.3"
+
     )
   )
 

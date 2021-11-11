@@ -1,8 +1,8 @@
 package com.pepeground.bot.handlers
 
 import com.pepeground.bot.Config
-import info.mukel.telegrambot4s.methods.ForwardMessage
-import info.mukel.telegrambot4s.models.{Message, User}
+import com.bot4s.telegram.methods.ForwardMessage
+import com.bot4s.telegram.models.{Message, User}
 import scalikejdbc.DBSession
 
 object RepostHandler {
@@ -14,8 +14,8 @@ object RepostHandler {
 class RepostHandler(message: Message)(implicit session: DBSession) extends GenericHandler(message) {
   def call(): Option[ForwardMessage] = {
     super.before()
-
-    if(canRepost) {
+    None
+    /*if(canRepost) {
       Some(
         ForwardMessage(
           Right(chat.repostChatUsername.get),
@@ -26,7 +26,7 @@ class RepostHandler(message: Message)(implicit session: DBSession) extends Gener
       )
     } else {
       None
-    }
+    }*/
   }
 
   def canRepost: Boolean = {

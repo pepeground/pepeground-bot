@@ -1,27 +1,38 @@
 package com.pepeground.bot
 
+import cats.instances.future._
 import com.pepeground.bot.handlers._
-import info.mukel.telegrambot4s.Implicits._
-import info.mukel.telegrambot4s.api._
-import info.mukel.telegrambot4s.methods._
-import info.mukel.telegrambot4s.models._
-
+import com.bot4s.telegram.Implicits._
+import com.bot4s.telegram.api._
+import com.bot4s.telegram.methods._
+import com.bot4s.telegram.models._
+import com.bot4s.telegram.future._
+import com.bot4s.telegram.api.declarative.{Commands }
+import com.bot4s.telegram.clients.FutureSttpClient
+import sttp.client3.SttpBackend
+import sttp.client3.okhttp.OkHttpFutureBackend
+import com.bot4s.telegram.api.RequestHandler
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.Future
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
 import scalikejdbc._
 
-object Router extends TelegramBot with Polling with Commands {
+class Router
+    extends TelegramBot
+    with Polling
+    with Commands[Future] {
   def token = Config.bot.telegramToken
+    implicit val backend                        = OkHttpFutureBackend()
+  override val client: RequestHandler[Future] = new FutureSttpClient(token)
 
   override val logger = Logger(LoggerFactory.getLogger(this.getClass))
   private val botName = Config.bot.name.toLowerCase
 
-  override def onMessage(msg: Message): Unit = {
+  override def receiveMessage(msg: Message): Future[Unit] = {
     DB localTx { implicit session =>
       Try(processMessage(msg)) match {
-        case Success(_: Unit) =>
+        case Success(_: Unit) => super.receiveMessage(msg)
         case Failure(e: Throwable) => throw e
       }
     }
@@ -88,7 +99,7 @@ object Router extends TelegramBot with Polling with Commands {
         }
 
         val chatMemberRequest: Option[Future[ChatMember]] = msg.from.flatMap {
-          u: User => request(GetChatMember(Left(msg.chat.id), u.id.toLong))
+          u: User => request(GetChatMember(ChatId(msg.chat.id), u.id.toInt))
         }
 
         chatUsername match {

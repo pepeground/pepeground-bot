@@ -2,7 +2,7 @@ package com.pepeground.bot.handlers
 
 import com.pepeground.core.repositories.ContextRepository
 import com.pepeground.core.services.{LearnService, StoryService}
-import info.mukel.telegrambot4s.models.Message
+import com.bot4s.telegram.models.Message
 import com.typesafe.scalalogging._
 import org.slf4j.LoggerFactory
 import scalikejdbc.DBSession

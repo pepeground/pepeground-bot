@@ -3,8 +3,8 @@ package com.pepeground.bot.handlers
 import com.pepeground.bot.Config
 import com.pepeground.core.entities.ChatEntity
 import com.pepeground.core.repositories.{ChatRepository, ContextRepository}
-import info.mukel.telegrambot4s.models.{Message, MessageEntity, User}
-import info.mukel.telegrambot4s.models.ChatType._
+import com.bot4s.telegram.models.{Message, MessageEntity, User}
+import com.bot4s.telegram.models.ChatType._
 import org.slf4j.MDC
 import io.sentry.event.BreadcrumbBuilder
 import scalikejdbc._

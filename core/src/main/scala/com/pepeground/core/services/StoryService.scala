@@ -12,7 +12,7 @@ import scala.util.control.Breaks._
 class StoryService(words: List[String], context: List[String], chatId: Long, sentences: Option[Int] = None)(implicit session: DBSession) {
   var currentSentences: ListBuffer[String] = ListBuffer()
   var currentWordIds: ListBuffer[Long] = ListBuffer()
-
+  //////////////////////////////////////////
   def generate(): Option[String] = {
       val currentWords: Map[String, Long] = WordRepository.getByWords(words ++ context).map(w => w.word -> w.id).toMap
       currentWordIds = words.map(w => currentWords.get(w)).filter(_.isDefined).map(_.get).to[ListBuffer]
@@ -28,7 +28,7 @@ class StoryService(words: List[String], context: List[String], chatId: Long, sen
     }
   }
 
-
+//////////////////////////////////////////
   private def generateSentence(): Unit = {
     var sentence: ListBuffer[String] = ListBuffer()
     var safetyCounter = 50
