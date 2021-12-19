@@ -1,10 +1,11 @@
 package com.pepeground.bot
 
-import com.typesafe.scalalogging.Logger
 import org.flywaydb.core.Flyway
-import org.slf4j.LoggerFactory
 import scalikejdbc.ConnectionPool
 import scalikejdbc.config._
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 object Main extends App {
   override def main(args: Array[String]): Unit = {
@@ -15,13 +16,22 @@ object Main extends App {
     val flyway: Flyway = new Flyway()
     val dataSource = ConnectionPool.dataSource(ConnectionPool.DEFAULT_NAME)
 
-    flyway.configure()
     flyway.setDataSource(dataSource)
     flyway.baseline()
     flyway.migrate()
 
-    Scheduler.setup()
-    Prometheus.start()
-    Router.run()
+    args.headOption match {
+      case Some("learn") => Learn.run
+      case Some("cleanup") => CleanUp.run
+      case Some("bot") =>
+        print("Running bot")
+        Await.ready(Router.run(), Duration.Inf)
+      case Some(x: String) =>
+        print(s"Unknown application argument: ${x}")
+        System.exit(1)
+      case None =>
+        print("Missing application argument")
+        System.exit(1)
+    }
   }
 }

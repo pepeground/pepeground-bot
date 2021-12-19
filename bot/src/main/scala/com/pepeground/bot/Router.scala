@@ -1,13 +1,14 @@
 package com.pepeground.bot
 
 import com.bot4s.telegram.api.RequestHandler
-import com.bot4s.telegram.api.declarative.InlineQueries
+import com.bot4s.telegram.api.declarative.Commands
 import com.bot4s.telegram.clients.FutureSttpClient
 import com.pepeground.bot.handlers._
-import com.bot4s.telegram.future.{Polling, TelegramBot, TelegramPolling}
+import com.bot4s.telegram.future.{Polling, TelegramBot}
 import com.bot4s.telegram.methods._
 import com.bot4s.telegram.models._
-import com.softwaremill.sttp.okhttp._
+
+import sttp.client3.okhttp.OkHttpFutureBackend
 
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.Future
@@ -15,7 +16,7 @@ import com.typesafe.scalalogging._
 import scalikejdbc._
 import slogging.{LogLevel, LoggerConfig, PrintLoggerFactory}
 
-object Router extends TelegramBot with TelegramPolling with InlineQueries[Future] {
+object Router extends TelegramBot with Polling with Commands[Future] {
   def token = Config.bot.telegramToken
 
   LoggerConfig.factory = PrintLoggerFactory()
@@ -30,7 +31,7 @@ object Router extends TelegramBot with TelegramPolling with InlineQueries[Future
   override def receiveMessage(msg: Message): Future[Unit] = {
     DB localTx { implicit session =>
       Try(processMessage(msg)) match {
-        case Success(_: Unit) => Future {}
+        case Success(_: Unit) => super.receiveMessage(msg)
         case Failure(e: Throwable) => throw e
       }
     }

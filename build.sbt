@@ -1,12 +1,12 @@
 lazy val versions = new {
   val akka = "2.4.17"
   val scalikejdbc = "3.3.2"
-  val telegram4s = "4.4.0-RC2"
+  val telegramCore = "5.1.0"
   val twitter4s = "5.1"
   val akkaQuartzScheduler = "1.6.0-akka-2.4.x"
   val flyway = "4.1.2"
-  val scalaLogging = "3.5.0"
-  val logback = "1.2.2"
+  val scalaLogging = "3.9.4"
+  val logback = "1.2.8"
   val typesafeConfig = "1.3.1"
   val postgresql = "9.4.1212"
   val commonsDbcp2 = "2.1.1"
@@ -14,16 +14,16 @@ lazy val versions = new {
   val redisClient = "3.4"
   val sentryLogback = "1.3.0"
   val scalatest = "3.0.1"
-  val circle = "0.11.1"
+  val circle = "0.14.1"
 }
 
 lazy val commonSettings = Seq(
   organization := "com.pepeground",
-  scalaVersion := "2.12.6",
+  scalaVersion := "2.12.15",
   version := "0.1",
   resolvers ++= Seq(
     Resolver.sonatypeRepo("snapshots"),
-    "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    "Typesafe Repository" at "https://repo.typesafe.com/typesafe/releases/",
     "Flyway" at "https://flywaydb.org/repo"
   ),
   parallelExecution in Test := false,
@@ -47,13 +47,13 @@ lazy val commonSettings = Seq(
     "io.circe" %% "circe-parser" % versions.circle,
     "org.scalatest" %% "scalatest" % versions.scalatest % "test",
     "org.scalikejdbc" %% "scalikejdbc-test" % versions.scalikejdbc % "test"
-  )
+  ),
 )
 
 lazy val core = (project in file("core")).
   settings(
     commonSettings,
-    name := "core"
+    name := "core",
   )
 
 lazy val bot = (project in file("bot")).
@@ -65,22 +65,17 @@ lazy val bot = (project in file("bot")).
     libraryDependencies ++= Seq(
       "com.enragedginger" %% "akka-quartz-scheduler" % versions.akkaQuartzScheduler,
       "com.danielasfregola" %% "twitter4s" % versions.twitter4s,
-      "com.bot4s" % "telegram-core_2.12" % versions.telegram4s,
+      "com.bot4s" %% "telegram-core" % versions.telegramCore,
       "io.micrometer" % "micrometer-registry-prometheus" % "1.4.1",
       "biz.enef" %% "slogging" % "0.6.1"
-    )
-  )
-
-lazy val api = (project in file("api")).
-  dependsOn(core).
-  settings(
-    commonSettings,
-    name := "api",
-    mainClass in (Compile,run) := Some("com.pepeground.api.Main"),
-    libraryDependencies ++= Seq(
-      "org.jruby" % "jruby" % "9.1.+"
-    )
+    ),
+    assemblyMergeStrategy := {
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    },
   )
 
 lazy val root = (project in file("."))
-  .aggregate(bot, api, core)
+  .aggregate(bot, core)
